@@ -1,8 +1,6 @@
 import { defineComponent } from 'vue';
 
-export interface MenuListResult {
-  list: Array<RouteItem>;
-}
+export type MenuListResult = Array<RouteItem>;
 
 export type Component<T = any> =
   | ReturnType<typeof defineComponent>

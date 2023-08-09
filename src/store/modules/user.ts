@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 
+import { passwordLogin } from '@/api/auth/login';
 import { usePermissionStore } from '@/store';
 import type { UserInfo } from '@/types/interface';
 
@@ -20,36 +21,14 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async login(userInfo: Record<string, unknown>) {
-      const mockLogin = async (userInfo: Record<string, unknown>) => {
-        // 登录请求流程
-        console.log(`用户信息:`, userInfo);
-        // const { account, password } = userInfo;
-        // if (account !== 'td') {
-        //   return {
-        //     code: 401,
-        //     message: '账号不存在',
-        //   };
-        // }
-        // if (['main_', 'dev_'].indexOf(password) === -1) {
-        //   return {
-        //     code: 401,
-        //     message: '密码错误',
-        //   };
-        // }
-        // const token = {
-        //   main_: 'main_token',
-        //   dev_: 'dev_token',
-        // }[password];
-        return {
-          code: 200,
-          message: '登陆成功',
-          data: 'main_token',
-        };
-      };
-
-      const res = await mockLogin(userInfo);
-      if (res.code === 200) {
-        this.token = res.data;
+      const { account, password } = userInfo;
+      const res = await passwordLogin({
+        grant_type: 'password',
+        username: account as string,
+        password: password as string,
+      });
+      if (res && res.access_token && res.access_token != null && res.access_token !== '') {
+        this.token = res.access_token;
       } else {
         throw res;
       }

@@ -9,7 +9,7 @@
   >
     <template v-if="type == 'password'">
       <t-form-item name="account">
-        <t-input v-model="formData.account" size="large" placeholder="请输入账号：admin">
+        <t-input v-model="formData.account" size="large" placeholder="请输入账号：user">
           <template #prefix-icon>
             <t-icon name="user" />
           </template>
@@ -22,7 +22,7 @@
           size="large"
           :type="showPsw ? 'text' : 'password'"
           clearable
-          placeholder="请输入登录密码：admin"
+          placeholder="请输入登录密码：password"
         >
           <template #prefix-icon>
             <t-icon name="lock-on" />
@@ -92,8 +92,8 @@ const userStore = useUserStore();
 
 const INITIAL_DATA = {
   phone: '',
-  account: 'admin',
-  password: 'admin',
+  account: 'user',
+  password: 'password',
   verifyCode: '',
   checked: false,
 };
