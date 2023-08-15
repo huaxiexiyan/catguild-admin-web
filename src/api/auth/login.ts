@@ -12,7 +12,7 @@ export function passwordLogin(data: LoginParam) {
       url: Api.PasswordLogin,
       data,
       headers: {
-        Authorization: 'Basic bWVzc2FnaW5nLWNsaWVudDpzZWNyZXQ=',
+        Authorization: 'Basic Y2F0Z3VpbGQtYWRtaW4td2ViOmh1YXhpZXhpeWFu',
         'Content-Type': ContentTypeEnum.FormURLEncoded,
       },
     },

@@ -4,6 +4,7 @@ import isString from 'lodash/isString';
 import merge from 'lodash/merge';
 
 import { ContentTypeEnum } from '@/constants';
+// import router from '@/router';
 import { useUserStore } from '@/store';
 
 import { VAxios } from './Axios';
@@ -132,6 +133,12 @@ const transform: AxiosTransform = {
 
   // 响应错误处理
   responseInterceptorsCatch: (error: any, instance: AxiosInstance) => {
+    // 登录未授权，调整到登录页
+    // const { response } = error;
+    // if (!response || response.status === 401) {
+    //   router.push('/Login');
+    //   return Promise.reject(error);
+    // }
     const { config } = error;
     if (!config || !config.requestOptions.retry) return Promise.reject(error);
 
