@@ -7,13 +7,55 @@
           <!-- <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出合同 </t-button>
           <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p> -->
         </div>
-        <!-- <div class="search-input">
-          <t-input v-model="searchValue" placeholder="请输入你需要搜索的内容" clearable>
-            <template #suffix-icon>
-              <search-icon size="16px" />
-            </template>
-          </t-input>
-        </div> -->
+        <div class="search-input">
+          <t-form ref="form" :data="formData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
+            <t-row>
+              <t-col :span="10">
+                <t-row :gutter="[24, 24]">
+                  <t-col :span="4">
+                    <t-form-item label="租户名称" name="name">
+                      <t-input
+                        v-model="formData.name"
+                        class="form-item-content"
+                        type="search"
+                        placeholder="租户名称"
+                        :style="{ minWidth: '134px' }"
+                      />
+                    </t-form-item>
+                  </t-col>
+                  <t-col :span="4">
+                    <t-form-item label="UID" name="uid">
+                      <t-input
+                        v-model="formData.uid"
+                        class="form-item-content"
+                        placeholder="请输入UID"
+                        :style="{ minWidth: '134px' }"
+                      />
+                    </t-form-item>
+                  </t-col>
+                  <t-col :span="4">
+                    <t-form-item label="状态" name="status">
+                      <t-select
+                        v-model="formData.status"
+                        class="form-item-content"
+                        :options="ACTIVE_STATUS_OPTIONS"
+                        placeholder="状态"
+                        clearable
+                      />
+                    </t-form-item>
+                  </t-col>
+                </t-row>
+              </t-col>
+
+              <t-col :span="2" class="operation-container">
+                <t-button theme="primary" type="submit" :style="{ marginLeft: 'var(--td-comp-margin-s)' }">
+                  查询
+                </t-button>
+                <t-button type="reset" variant="base" theme="default"> 重置 </t-button>
+              </t-col>
+            </t-row>
+          </t-form>
+        </div>
       </t-row>
       <t-table
         :data="data"
@@ -29,12 +71,22 @@
         @change="rehandleChange"
         @select-change="rehandleSelectChange"
       >
-        <!-- <template #op="slotProps">
+        <template #status="{ row }">
+          <t-switch
+            v-model="row.status"
+            width="120px"
+            :custom-value="[ACTIVE_STATUS.ACTIVE, ACTIVE_STATUS.INACTIVE]"
+            :label="[ACTIVE_STATUS_LABEL.ACTIVE, ACTIVE_STATUS_LABEL.INACTIVE]"
+            size="large"
+            @change="handleUpdateStatus(row)"
+          >
+          </t-switch>
+        </template>
+        <template #op="slotProps">
           <t-space>
-            <t-link theme="primary" @click="handleClickDetail()">详情</t-link>
-            <t-link theme="danger" @click="handleClickDelete(slotProps)">删除</t-link>
+            <t-link theme="primary" @click="handleClickDetail(slotProps)">详情</t-link>
           </t-space>
-        </template> -->
+        </template>
       </t-table>
     </t-card>
 
@@ -57,15 +109,27 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { PageInfo, TableRowData } from 'tdesign-vue-next';
 import { computed, onMounted, ref } from 'vue';
 
 import { getTenantPage } from '@/api/auth/tenant';
 import { prefix } from '@/config/global';
+import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
 import { useSettingStore } from '@/store';
 
 import DialogFromTenant from './components/DialogFromTenant.vue';
 import { COLUMNS } from './constants';
 
+interface FormData {
+  name: string;
+  uid: string;
+  status?: number;
+}
+const searchForm = {
+  name: '',
+  uid: '',
+};
+const formData = ref<FormData>({ ...searchForm });
 const store = useSettingStore();
 
 const data = ref([]);
@@ -109,8 +173,13 @@ const rowKey = 'index';
 const rehandleSelectChange = (val: number[]) => {
   selectedRowKeys.value = val;
 };
-const rehandlePageChange = (curr: unknown, pageInfo: unknown) => {
-  console.log('分页变化', curr, pageInfo);
+const rehandlePageChange = (pageInfo: PageInfo, newDataSource: TableRowData[]) => {
+  pagination.value = {
+    ...pagination.value,
+    defaultPageSize: pageInfo.pageSize,
+    defaultCurrent: pageInfo.current,
+  };
+  fetchData();
 };
 const rehandleChange = (changeParams: unknown, triggerAndData: unknown) => {
   console.log('统一Change', changeParams, triggerAndData);
@@ -126,6 +195,24 @@ const headerAffixedTop = computed(
 
 // 新增租户
 const formDialogVisible = ref(false);
+
+// 详情
+const handleClickDetail = (row: { rowIndex: any }) => {
+  console.log('详情');
+};
+
+const onReset = (val: unknown) => {
+  console.log(val);
+};
+const onSubmit = (val: unknown) => {
+  console.log(val);
+  console.log(formData.value);
+};
+
+const handleUpdateStatus = (row: { rowIndex: any }) => {
+  console.log('改变状态');
+  console.log(row);
+};
 </script>
 
 <!-- <style lang="less" scoped>

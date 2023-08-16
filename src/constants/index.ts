@@ -49,3 +49,17 @@ export enum ContentTypeEnum {
   FormURLEncoded = 'application/x-www-form-urlencoded;charset=UTF-8',
   FormData = 'multipart/form-data;charset=UTF-8',
 }
+
+// 统用二意状态
+export const ACTIVE_STATUS = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+};
+export const ACTIVE_STATUS_LABEL = {
+  ACTIVE: '活跃',
+  INACTIVE: '冻结',
+};
+export const ACTIVE_STATUS_OPTIONS = [
+  { value: ACTIVE_STATUS.ACTIVE, label: ACTIVE_STATUS_LABEL.ACTIVE },
+  { value: ACTIVE_STATUS.INACTIVE, label: ACTIVE_STATUS_LABEL.INACTIVE },
+];
