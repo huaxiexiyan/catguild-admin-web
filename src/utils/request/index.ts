@@ -136,7 +136,7 @@ const transform: AxiosTransform = {
     // 登录未授权，调整到登录页
     // const { response } = error;
     // if (!response || response.status === 401) {
-    //   router.push('/Login');
+    //   router.push('/loginRedirect');
     //   return Promise.reject(error);
     // }
     const { config } = error;
