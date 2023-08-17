@@ -38,7 +38,7 @@
         </div>
       </div>
     </template>
-    <t-badge :count="unreadMsg.length" :offset="[4, 4]">
+    <t-badge :count="message.num" :offset="[4, 4]">
       <t-button theme="default" shape="square" variant="text">
         <t-icon name="mail" />
       </t-button>
@@ -48,6 +48,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useNotificationStore } from '@/store';
@@ -76,6 +77,74 @@ const setRead = (type: string, item?: NotificationItem) => {
 const goDetail = () => {
   router.push('/detail/secondary');
 };
+
+const message = ref({
+  num: 0,
+});
+
+const refresh = () => {
+  let source: EventSource = null;
+  const userId = 7777;
+  if (window.EventSource) {
+    // 建立连接
+    source = new EventSource(`http://127.0.0.1:20000/api/auth/notices/connect/${userId}`);
+    console.log(`连接用户=${userId}`);
+    /**
+     * 连接一旦建立，就会触发open事件
+     * 另一种写法：source.onopen = function (event) {}
+     */
+    source.addEventListener(
+      'open',
+      function () {
+        console.log('建立连接。。。');
+      },
+      false,
+    );
+    /**
+     * 客户端收到服务器发来的数据
+     * 另一种写法：source.onmessage = function (event) {}
+     */
+    source.addEventListener('message', function (e) {
+      console.log('收到消息', e.data);
+      message.value.num = e.data;
+    });
+
+    /*
+     * error：错误（可能是断开，可能是后端返回的信息）
+     */
+    source.addEventListener(
+      'error',
+      function (e) {
+        if (e.readyState === EventSource.CLOSED) {
+          source.close();
+        } else {
+          console.log(e);
+        }
+      },
+      false,
+    );
+  } else {
+    console.log('你的浏览器不支持SSE');
+  }
+
+  // 监听窗口关闭事件，主动去关闭sse连接，如果服务端设置永不过期，浏览器关闭后手动清理服务端数据
+  window.onbeforeunload = function () {
+    closeSse();
+  };
+
+  // 关闭Sse连接
+  function closeSse() {
+    source.close();
+    const httpRequest = new XMLHttpRequest();
+    httpRequest.open('GET', `/sse/close/${userId}`, true);
+    httpRequest.send();
+    console.log('close');
+  }
+};
+
+onMounted(() => {
+  refresh();
+});
 </script>
 
 <style lang="less" scoped>
