@@ -1,252 +1,348 @@
 <template>
   <div>
-    <t-card class="list-card-container" :bordered="false">
-      <t-row justify="space-between">
-        <div class="left-operation-container">
-          <t-button @click="formDialogVisible = true"> 新增租户 </t-button>
-          <!-- <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出合同 </t-button>
-          <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p> -->
-        </div>
-        <div class="search-input">
-          <t-form ref="form" :data="formData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
-            <t-row>
-              <t-col :span="10">
-                <t-row :gutter="[24, 24]">
-                  <t-col :span="4">
-                    <t-form-item label="租户名称" name="name">
-                      <t-input
-                        v-model="formData.name"
-                        class="form-item-content"
-                        type="search"
-                        placeholder="租户名称"
-                        :style="{ minWidth: '134px' }"
-                      />
-                    </t-form-item>
-                  </t-col>
-                  <t-col :span="4">
-                    <t-form-item label="UID" name="uid">
-                      <t-input
-                        v-model="formData.uid"
-                        class="form-item-content"
-                        placeholder="请输入UID"
-                        :style="{ minWidth: '134px' }"
-                      />
-                    </t-form-item>
-                  </t-col>
-                  <t-col :span="4">
-                    <t-form-item label="状态" name="status">
-                      <t-select
-                        v-model="formData.status"
-                        class="form-item-content"
-                        :options="ACTIVE_STATUS_OPTIONS"
-                        placeholder="状态"
-                        clearable
-                      />
-                    </t-form-item>
-                  </t-col>
-                </t-row>
-              </t-col>
+    <div>
+      <t-button @click="appendToRoot">添加根节点</t-button>
+    </div>
+    <br />
+    <div>
+      <t-checkbox v-model="customTreeExpandAndFoldIcon" style="vertical-align: middle">
+        自定义折叠/展开图标
+      </t-checkbox>
+    </div>
+    <br />
+    <!-- !!! 树形结构 EnhancedTable 才支持，普通 Table 不支持 !!! -->
+    <!-- 第一列展开树结点，缩进为 24px，子节点字段 childrenKey 默认为 children -->
+    <!-- v-model:displayColumns="displayColumns" used to control displayed columns -->
+    <!-- v-model:expandedTreeNodes is not required. you can control expanded tree node by expandedTreeNodes -->
+    <t-enhanced-table
+      ref="tableRef"
+      v-model:expandedTreeNodes="expandedTreeNodes"
+      row-key="key"
+      drag-sort="row-handler"
+      :data="data"
+      :columns="columns"
+      :tree="treeConfig"
+      :tree-expand-and-fold-icon="treeExpandIcon"
+      :pagination="pagination"
+      :before-drag-sort="beforeDragSort"
+      @page-change="onPageChange"
+      @abnormal-drag-sort="onAbnormalDragSort"
+      @drag-sort="onDragSort"
+      @expanded-tree-nodes-change="onExpandedTreeNodesChange"
+    ></t-enhanced-table>
+    <!-- @tree-expand-change="onTreeExpandChange" -->
 
-              <t-col :span="2" class="operation-container">
-                <t-button theme="primary" type="submit" :style="{ marginLeft: 'var(--td-comp-margin-s)' }">
-                  查询
-                </t-button>
-                <t-button type="reset" variant="base" theme="default"> 重置 </t-button>
-              </t-col>
-            </t-row>
-          </t-form>
-        </div>
-      </t-row>
-      <t-table
-        :data="data"
-        :columns="COLUMNS"
-        :row-key="rowKey"
-        vertical-align="top"
-        :hover="true"
-        :pagination="pagination"
-        :selected-row-keys="selectedRowKeys"
-        :loading="dataLoading"
-        :header-affixed-top="headerAffixedTop"
-        @page-change="rehandlePageChange"
-        @change="rehandleChange"
-        @select-change="rehandleSelectChange"
-      >
-        <template #status="{ row }">
-          <t-switch
-            v-model="row.status"
-            width="120px"
-            :custom-value="[ACTIVE_STATUS.ACTIVE, ACTIVE_STATUS.INACTIVE]"
-            :label="[ACTIVE_STATUS_LABEL.ACTIVE, ACTIVE_STATUS_LABEL.INACTIVE]"
-            size="large"
-            @change="handleUpdateStatus(row)"
-          >
-          </t-switch>
-        </template>
-        <template #op="slotProps">
-          <t-space>
-            <t-link theme="primary" @click="handleClickDetail(slotProps)">详情</t-link>
-          </t-space>
-        </template>
-      </t-table>
-    </t-card>
-
-    <dialog-from-tenant v-model:visible="formDialogVisible" />
-
-    <!-- <t-dialog
-      v-model:visible="confirmVisible"
-      header="确认删除当前所选合同？"
-      :body="confirmBody"
-      :on-cancel="onCancel"
-      @confirm="onConfirmDelete"
-    /> -->
+    <!-- 第二列展开树结点，缩进为 12px，示例代码有效，勿删 -->
+    <!-- indent 定义缩进距离 -->
+    <!-- 如果子结点字段不是 'children'，可以使用 childrenKey 定义字段别名，如 `:tree="{ childrenKey: 'list' }"` -->
+    <!-- <t-enhanced-table
+      ref="tableRef"
+      rowKey="key"
+      :pagination="defaultPagination"
+      :data="data"
+      :columns="columns"
+      :tree="{ indent: 12, childrenKey: 'list', defaultExpandAll: true }"
+      @page-change="onPageChange"
+    ></t-enhanced-table> -->
   </div>
 </template>
+<script setup lang="jsx">
+import {
+  AddRectangleIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  MinusRectangleIcon,
+  MoveIcon,
+} from 'tdesign-icons-vue-next';
+import { EnhancedTable as TEnhancedTable, Loading, MessagePlugin } from 'tdesign-vue-next';
+import { computed, /** , onMounted */ reactive, ref } from 'vue';
 
-<script lang="ts">
-export default {
-  name: 'TenantList',
-};
-</script>
+import { getAppPage, getAppVersion } from '@/api/system/app';
 
-<script setup lang="ts">
-import { PageInfo, TableRowData } from 'tdesign-vue-next';
-import { computed, onMounted, ref } from 'vue';
-
-import { getTenantPage } from '@/api/auth/tenant';
-import { prefix } from '@/config/global';
-import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
-import { useSettingStore } from '@/store';
-
-import DialogFromTenant from './components/DialogFromTenant.vue';
-import { COLUMNS } from './constants';
-
-interface FormData {
-  name: string;
-  uid: string;
-  status?: number;
-}
-const searchForm = {
-  name: '',
-  uid: '',
-};
-const formData = ref<FormData>({ ...searchForm });
-const store = useSettingStore();
-
-const data = ref([]);
-const pagination = ref({
-  defaultCurrent: 1,
-  defaultPageSize: 10,
-  total: 10,
+const TOTAL = 5;
+// 分页参数
+const pagination = reactive({
+  current: 1,
+  pageSize: TOTAL,
+  total: TOTAL,
 });
 
-const dataLoading = ref(false);
+function getObject(i, currentPage) {
+  return {
+    id: i,
+    key: `申请人 ${i}_${currentPage} 号`,
+    platform: ['电子签署', '纸质签署', '纸质签署'][i % 3],
+    type: ['String', 'Number', 'Array', 'Object'][i % 4],
+    default: ['-', '0', '[]', '{}'][i % 4],
+    detail: {
+      position: `读取 ${i} 个数据的嵌套信息值`,
+    },
+    needed: i % 4 === 0 ? '是' : '否',
+    description: '数据源',
+  };
+}
+
 const fetchData = async () => {
-  dataLoading.value = true;
   try {
-    const { records, size, total, current } = await getTenantPage({
-      current: pagination.value.defaultCurrent,
-      size: pagination.value.defaultPageSize,
+    const { records, size, total, current } = await getAppPage({
+      current: pagination.current,
+      size: pagination.pageSize,
       name: '',
     });
     data.value = records;
-    pagination.value = {
-      ...pagination.value,
-      defaultPageSize: size,
-      defaultCurrent: current,
-      total,
-    };
+    pagination.current = current;
+    pagination.current = size;
+    pagination.current = total;
   } catch (e) {
     console.log(e);
-  } finally {
-    dataLoading.value = false;
   }
 };
 
-onMounted(() => {
+function getData() {
   fetchData();
-});
+}
 
-const selectedRowKeys = ref([1, 2]);
+const tableRef = ref(null);
+const data = ref(getData());
+const lazyLoadingData = ref(null);
 
-const rowKey = 'index';
+// 非必须，如果不传，表格有内置树形节点展开逻辑
+const expandedTreeNodes = ref([]);
 
-const rehandleSelectChange = (val: number[]) => {
-  selectedRowKeys.value = val;
-};
-const rehandlePageChange = (pageInfo: PageInfo, newDataSource: TableRowData[]) => {
-  pagination.value = {
-    ...pagination.value,
-    defaultPageSize: pageInfo.pageSize,
-    defaultCurrent: pageInfo.current,
+const treeConfig = reactive({ childrenKey: 'list', treeNodeColumnIndex: 2, indent: 25 });
+
+const onEditClick = (row) => {
+  const newData = {
+    ...row,
+    platform: 'New',
+    type: 'Symbol',
+    default: 'undefined',
   };
-  fetchData();
-};
-const rehandleChange = (changeParams: unknown, triggerAndData: unknown) => {
-  console.log('统一Change', changeParams, triggerAndData);
+  tableRef.value.setData(row.key, newData);
+  MessagePlugin.success('数据已更新');
 };
 
-const headerAffixedTop = computed(
-  () =>
-    ({
-      offsetTop: store.isUseTabsRouter ? 48 : 0,
-      container: `.${prefix}-layout`,
-    } as any),
-);
+const onDeleteConfirm = (row) => {
+  // 移除当前节点及其所有子节点
+  tableRef.value.remove(row.key);
 
-// 新增租户
-const formDialogVisible = ref(false);
-
-// 详情
-const handleClickDetail = (row: { rowIndex: any }) => {
-  console.log('详情');
+  // 仅移除所有子节点
+  // tableRef.value.removeChildren(row.key);
+  MessagePlugin.success('删除成功');
 };
 
-const onReset = (val: unknown) => {
-  console.log(val);
-};
-const onSubmit = (val: unknown) => {
-  console.log(val);
-  console.log(formData.value);
+const onLookUp = (row) => {
+  const allRowData = tableRef.value.getData(row.key);
+  const message = '当前行全部数据，包含节点路径、父节点、子节点、是否展开、是否禁用等';
+  MessagePlugin.success(`打开控制台查看${message}`);
+  console.log(`${message}：`, allRowData);
 };
 
-const handleUpdateStatus = (row: { rowIndex: any }) => {
-  console.log('改变状态');
-  console.log(row);
+const appendTo = (row) => {
+  const randomKey1 = Math.round(Math.random() * Math.random() * 1000) + 10000;
+  tableRef.value.appendTo(row.key, {
+    id: randomKey1,
+    key: `申请人 ${randomKey1} 号`,
+    platform: '电子签署',
+    type: 'Number',
+  });
+  MessagePlugin.success(`已插入子节点申请人 ${randomKey1} 号，请展开查看`);
+
+  // 一次性添加多个子节点。示例代码有效，勿删！!!
+  // appendMultipleDataTo(row);
 };
+
+function appendMultipleDataTo(row) {
+  const randomKey1 = Math.round(Math.random() * Math.random() * 1000) + 10000;
+  const randomKey2 = Math.round(Math.random() * Math.random() * 1000) + 10000;
+  const randomKey3 = Math.round(Math.random() * Math.random() * 1000) + 10000;
+  const appendList = [
+    {
+      id: randomKey1,
+      key: `申请人 ${randomKey1} 号`,
+      platform: '电子签署',
+      type: 'Number',
+    },
+    {
+      id: randomKey2,
+      key: `申请人 ${randomKey2} 号`,
+      platform: '纸质签署',
+      type: 'Number',
+    },
+    {
+      id: randomKey3,
+      key: `申请人 ${randomKey3} 号`,
+      platform: '纸质签署',
+      type: 'Number',
+      list: true,
+    },
+  ];
+  tableRef.value.appendTo(row?.key, appendList);
+  MessagePlugin.success(`已插入子节点申请人 ${randomKey1} 和 ${randomKey2} 号，请展开查看`);
+}
+
+const columns = [
+  {
+    colKey: 'id',
+    title: '编号',
+    ellipsis: true,
+    width: 180,
+  },
+  {
+    width: 180,
+    colKey: 'name',
+    title: '应用名',
+    ellipsis: true,
+  },
+  {
+    colKey: 'uid',
+    title: 'UID',
+    width: 100,
+  },
+  {
+    colKey: 'status',
+    title: '状态',
+    width: 100,
+  },
+  {
+    colKey: 'cTime',
+    title: '创建时间',
+    width: 100,
+  },
+  {
+    colKey: 'operate',
+    width: 200,
+    title: '操作',
+    // 增、删、改、查 等操作
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    cell: (h, { row }) => (
+      <div class="tdesign-table-demo__table-operations">
+        <t-link variant="text" hover="color" onClick={() => appendTo(row)}>
+          新增版本
+        </t-link>
+        <t-link variant="text" hover="color" onClick={() => onEditClick(row)}>
+          更新
+        </t-link>
+        <t-link variant="text" hover="color" onClick={() => onLookUp(row)}>
+          查看
+        </t-link>
+        <t-popconfirm content="确认删除吗" onConfirm={() => onDeleteConfirm(row)}>
+          <t-link variant="text" hover="color" theme="danger">
+            删除
+          </t-link>
+        </t-popconfirm>
+      </div>
+    ),
+  },
+];
+
+const expandAll = ref(false);
+
+const onPageChange = (pageInfo) => {
+  pagination.current = pageInfo.current;
+  pagination.pageSize = pageInfo.pageSize;
+  data.value = getData();
+};
+
+const customTreeExpandAndFoldIcon = ref(false);
+
+const treeExpandAndFoldIconRender = (h, { type, row }) => {
+  if (lazyLoadingData.value && lazyLoadingData.value.key === row?.key) {
+    return <Loading size="14px" />;
+  }
+  return type === 'expand' ? <ChevronRightIcon /> : <ChevronDownIcon />;
+};
+
+// 懒加载图标渲染
+const lazyLoadingTreeIconRender = (h, params) => {
+  const { type, row } = params;
+  if (lazyLoadingData.value && lazyLoadingData.value.key === row?.key) {
+    return <Loading size="14px" />;
+  }
+  return type === 'expand' ? <AddRectangleIcon /> : <MinusRectangleIcon />;
+};
+
+// 默认展开全部。示例代码有效，勿删
+// onMounted(() => {
+//   tableRef.value.expandAll();
+// });
+
+const appendToRoot = () => {
+  const key = Math.round(Math.random() * 10010);
+  const newData = {
+    id: key,
+    key: `申请人 ${key}_${1} 号`,
+    platform: key % 2 === 0 ? '共有' : '私有',
+    type: ['String', 'Number', 'Array', 'Object'][key % 4],
+    default: ['-', '0', '[]', '{}'][key % 4],
+    detail: {
+      position: `读取 ${key} 个数据的嵌套信息值`,
+    },
+    needed: key % 4 === 0 ? '是' : '否',
+    description: '数据源',
+  };
+  // data.value.push(newData);
+  tableRef.value.appendTo('', newData);
+
+  // 同时添加多个元素，示例代码有效勿删
+  // appendMultipleDataTo();
+};
+
+const onAbnormalDragSort = (params) => {
+  console.log(params);
+  // MessagePlugin.warning(params.reason);
+  if (params.code === 1001) {
+    MessagePlugin.warning('不同层级的元素，不允许调整顺序');
+  }
+};
+
+const onExpandedTreeNodesChange = (expandedTreeNodes, context) => {
+  console.log(expandedTreeNodes, context);
+  // 全选不需要处理；仅处理懒加载
+  if (!context.rowState) return;
+  onTreeExpandChange(context);
+};
+
+const onTreeExpandChange = (context) => {
+  console.log(context.rowState.expanded ? '展开' : '收起', context);
+  /**
+   * 如果是懒加载，请确认自己完成了以下几个步骤
+   * 1. 提前设置 children 值为 true；
+   * 2. 在 onTreeExpandChange 事件中处理异步数据；
+   * 3. 自定义展开图标渲染 lazyLoadingTreeIconRender
+   */
+  if (context.row.list === true) {
+    lazyLoadingData.value = context.row;
+    const timer = setTimeout(() => {
+      appendMultipleDataTo(context.row);
+      lazyLoadingData.value = null;
+      clearTimeout(timer);
+    }, 200);
+  }
+};
+
+const onDragSort = (params) => {
+  console.log('onDragSort:', params);
+};
+
+// 应用于需要阻止拖拽排序的场景。如：当子节点存在时，则不允许调整顺序。
+// 返回值为 true，允许拖拽排序；返回值 为 false，则阻止拖拽排序
+const beforeDragSort = (params) => {
+  console.log('beforeDragSort:', params);
+  return true;
+};
+
+const treeExpandIcon = computed(() => {
+  // 自定义展开图标
+  if (customTreeExpandAndFoldIcon.value) {
+    return treeExpandAndFoldIconRender;
+  }
+  return lazyLoadingTreeIconRender;
+});
 </script>
 
-<!-- <style lang="less" scoped>
-.payment-col {
-  display: flex;
-
-  .trend-container {
-    display: flex;
-    align-items: center;
-    margin-left: var(--td-comp-margin-s);
-  }
+<style>
+.tdesign-table-demo__table-operations .t-link {
+  padding: 0 8px;
 }
-
-.list-card-container {
-  padding: var(--td-comp-paddingTB-xxl) var(--td-comp-paddingLR-xxl);
-
-  :deep(.t-card__body) {
-    padding: 0;
-  }
-}
-
-.left-operation-container {
-  display: flex;
-  align-items: center;
-  margin-bottom: var(--td-comp-margin-xxl);
-
-  .selected-count {
-    display: inline-block;
-    margin-left: var(--td-comp-margin-l);
-    color: var(--td-text-color-secondary);
-  }
-}
-
-.search-input {
-  width: 360px;
-}
-</style> -->
+</style>

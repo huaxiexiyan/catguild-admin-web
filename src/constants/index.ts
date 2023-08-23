@@ -51,7 +51,12 @@ export enum ContentTypeEnum {
 }
 
 // 统用二意状态
-export const ACTIVE_STATUS = {
+export enum ACTIVE_STATUS {
+  ACTIVE,
+  INACTIVE,
+}
+
+export const ACTIVE_STATUS_STRING = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
 };
@@ -63,3 +68,15 @@ export const ACTIVE_STATUS_OPTIONS = [
   { value: ACTIVE_STATUS.ACTIVE, label: ACTIVE_STATUS_LABEL.ACTIVE },
   { value: ACTIVE_STATUS.INACTIVE, label: ACTIVE_STATUS_LABEL.INACTIVE },
 ];
+
+// 通用分页参数请求
+export interface PageParam {
+  current: number;
+  size: number;
+}
+// 通用的分页响应
+export interface PageResult {
+  current: number;
+  size: number;
+  total: number;
+}
