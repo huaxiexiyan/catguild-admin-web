@@ -4,12 +4,6 @@
       <t-button @click="appendToRoot">添加根节点</t-button>
     </div>
     <br />
-    <div>
-      <t-checkbox v-model="customTreeExpandAndFoldIcon" style="vertical-align: middle">
-        自定义折叠/展开图标
-      </t-checkbox>
-    </div>
-    <br />
     <!-- !!! 树形结构 EnhancedTable 才支持，普通 Table 不支持 !!! -->
     <!-- 第一列展开树结点，缩进为 24px，子节点字段 childrenKey 默认为 children -->
     <!-- v-model:displayColumns="displayColumns" used to control displayed columns -->
@@ -17,12 +11,11 @@
     <t-enhanced-table
       ref="tableRef"
       v-model:expandedTreeNodes="expandedTreeNodes"
-      row-key="key"
+      row-key="id"
       drag-sort="row-handler"
       :data="data"
       :columns="columns"
       :tree="treeConfig"
-      :tree-expand-and-fold-icon="treeExpandIcon"
       :pagination="pagination"
       :before-drag-sort="beforeDragSort"
       @page-change="onPageChange"
@@ -109,7 +102,7 @@ const lazyLoadingData = ref(null);
 // 非必须，如果不传，表格有内置树形节点展开逻辑
 const expandedTreeNodes = ref([]);
 
-const treeConfig = reactive({ childrenKey: 'list', treeNodeColumnIndex: 2, indent: 25 });
+const treeConfig = reactive({ childrenKey: 'versions', treeNodeColumnIndex: 1, indent: 25 });
 
 const onEditClick = (row) => {
   const newData = {
@@ -202,12 +195,12 @@ const columns = [
   {
     colKey: 'status',
     title: '状态',
-    width: 100,
+    width: 60,
   },
   {
     colKey: 'cTime',
     title: '创建时间',
-    width: 100,
+    width: 140,
   },
   {
     colKey: 'operate',
@@ -243,8 +236,6 @@ const onPageChange = (pageInfo) => {
   pagination.pageSize = pageInfo.pageSize;
   data.value = getData();
 };
-
-const customTreeExpandAndFoldIcon = ref(false);
 
 const treeExpandAndFoldIconRender = (h, { type, row }) => {
   if (lazyLoadingData.value && lazyLoadingData.value.key === row?.key) {
@@ -331,14 +322,6 @@ const beforeDragSort = (params) => {
   console.log('beforeDragSort:', params);
   return true;
 };
-
-const treeExpandIcon = computed(() => {
-  // 自定义展开图标
-  if (customTreeExpandAndFoldIcon.value) {
-    return treeExpandAndFoldIconRender;
-  }
-  return lazyLoadingTreeIconRender;
-});
 </script>
 
 <style>
