@@ -3,40 +3,49 @@
     <t-card class="list-card-container" :bordered="false">
       <t-row justify="space-between">
         <div class="left-operation-container">
-          <t-button @click="formDialogVisible = true"> 新增租户 </t-button>
-          <!-- <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出合同 </t-button>
-          <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p> -->
+          <t-button @click="openAddResourceDialog"> 新增资源 </t-button>
         </div>
-        <div class="search-input">
-          <t-form ref="form" :data="formData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
+        <div>
+          <t-form ref="form" :data="queryData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
             <t-row>
-              <t-col :span="10">
-                <t-row :gutter="[24, 24]">
-                  <t-col :span="4">
-                    <t-form-item label="租户名称" name="name">
+              <t-col :span="10" class="input-container">
+                <t-row :gutter="[0, 0]" justify="end">
+                  <t-col :span="3">
+                    <t-form-item label="资源名称" name="name">
                       <t-input
-                        v-model="formData.name"
+                        v-model="queryData.name"
                         class="form-item-content"
                         type="search"
-                        placeholder="租户名称"
-                        :style="{ minWidth: '134px' }"
+                        placeholder="资源名称"
                       />
                     </t-form-item>
                   </t-col>
-                  <t-col :span="4">
-                    <t-form-item label="UID" name="uid">
-                      <t-input
-                        v-model="formData.uid"
+                  <t-col :span="3">
+                    <t-form-item label="资源id" name="id">
+                      <t-input-number
+                        v-model="queryData.id"
+                        theme="normal"
                         class="form-item-content"
-                        placeholder="请输入UID"
-                        :style="{ minWidth: '134px' }"
+                        placeholder="请输入资源id"
+                        :style="{ minWidth: '180px' }"
                       />
                     </t-form-item>
                   </t-col>
-                  <t-col :span="4">
+                  <t-col :span="2">
+                    <t-form-item label="类型" name="type">
+                      <t-select
+                        v-model="queryData.type"
+                        class="form-item-content"
+                        :options="ACTIVE_STATUS_OPTIONS"
+                        placeholder="类型"
+                        clearable
+                      />
+                    </t-form-item>
+                  </t-col>
+                  <t-col :span="2">
                     <t-form-item label="状态" name="status">
                       <t-select
-                        v-model="formData.status"
+                        v-model="queryData.status"
                         class="form-item-content"
                         :options="ACTIVE_STATUS_OPTIONS"
                         placeholder="状态"
@@ -90,21 +99,13 @@
       </t-table>
     </t-card>
 
-    <dialog-from-tenant v-model:visible="formDialogVisible" />
-
-    <!-- <t-dialog
-      v-model:visible="confirmVisible"
-      header="确认删除当前所选合同？"
-      :body="confirmBody"
-      :on-cancel="onCancel"
-      @confirm="onConfirmDelete"
-    /> -->
+    <dialog-from-tenant v-model:visible="formDialogVisible" :active-form-father="0" />
   </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: 'TenantList',
+  name: 'SystemMenuList',
 };
 </script>
 
@@ -112,7 +113,8 @@ export default {
 import { PageInfo, TableRowData } from 'tdesign-vue-next';
 import { computed, onMounted, ref } from 'vue';
 
-import { getTenantPage } from '@/api/auth/tenant';
+import { RESOURCE_TYPE } from '@/api/system/model/resourceModel';
+import { getResourcePage } from '@/api/system/resource';
 import { prefix } from '@/config/global';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
 import { useSettingStore } from '@/store';
@@ -120,22 +122,22 @@ import { useSettingStore } from '@/store';
 import DialogFromTenant from './components/DialogFromTenant.vue';
 import { COLUMNS } from './constants';
 
-interface FormData {
+interface QueryData {
+  id?: number;
   name: string;
-  uid: string;
-  status?: number;
+  type?: RESOURCE_TYPE;
+  status?: ACTIVE_STATUS;
 }
 const searchForm = {
   name: '',
-  uid: '',
 };
-const formData = ref<FormData>({ ...searchForm });
+const queryData = ref<QueryData>({ ...searchForm });
 const store = useSettingStore();
 
 const data = ref([]);
 const pagination = ref({
-  defaultCurrent: 1,
-  defaultPageSize: 10,
+  current: 1,
+  pageSize: 10,
   total: 10,
 });
 
@@ -143,18 +145,16 @@ const dataLoading = ref(false);
 const fetchData = async () => {
   dataLoading.value = true;
   try {
-    const { records, size, total, current } = await getTenantPage({
-      current: pagination.value.defaultCurrent,
-      size: pagination.value.defaultPageSize,
-      name: '',
+    const { records, total } = await getResourcePage({
+      current: pagination.value.current,
+      size: pagination.value.pageSize,
+      name: queryData.value.name,
+      type: queryData.value.type,
+      status: queryData.value.status,
+      id: queryData.value.id,
     });
     data.value = records;
-    pagination.value = {
-      ...pagination.value,
-      defaultPageSize: size,
-      defaultCurrent: current,
-      total,
-    };
+    pagination.value.total = total;
   } catch (e) {
     console.log(e);
   } finally {
@@ -176,8 +176,8 @@ const rehandleSelectChange = (val: number[]) => {
 const rehandlePageChange = (pageInfo: PageInfo, newDataSource: TableRowData[]) => {
   pagination.value = {
     ...pagination.value,
-    defaultPageSize: pageInfo.pageSize,
-    defaultCurrent: pageInfo.current,
+    pageSize: pageInfo.pageSize,
+    current: pageInfo.current,
   };
   fetchData();
 };
@@ -193,9 +193,6 @@ const headerAffixedTop = computed(
     } as any),
 );
 
-// 新增租户
-const formDialogVisible = ref(false);
-
 // 详情
 const handleClickDetail = (row: { rowIndex: any }) => {
   console.log('详情');
@@ -205,48 +202,23 @@ const onReset = (val: unknown) => {
   console.log(val);
 };
 const onSubmit = (val: unknown) => {
-  console.log(val);
-  console.log(formData.value);
+  fetchData();
 };
 
 const handleUpdateStatus = (row: { rowIndex: any }) => {
   console.log('改变状态');
   console.log(row);
 };
+
+// 控制新增资源弹框
+const formDialogVisible = ref(false);
+const openAddResourceDialog = () => {
+  formDialogVisible.value = true;
+};
 </script>
 
-<!-- <style lang="less" scoped>
-.payment-col {
-  display: flex;
-
-  .trend-container {
-    display: flex;
-    align-items: center;
-    margin-left: var(--td-comp-margin-s);
-  }
+<style lang="less" scoped>
+.input-container {
+  text-align: right;
 }
-
-.list-card-container {
-  padding: var(--td-comp-paddingTB-xxl) var(--td-comp-paddingLR-xxl);
-
-  :deep(.t-card__body) {
-    padding: 0;
-  }
-}
-
-.left-operation-container {
-  display: flex;
-  align-items: center;
-  margin-bottom: var(--td-comp-margin-xxl);
-
-  .selected-count {
-    display: inline-block;
-    margin-left: var(--td-comp-margin-l);
-    color: var(--td-text-color-secondary);
-  }
-}
-
-.search-input {
-  width: 360px;
-}
-</style> -->
+</style>

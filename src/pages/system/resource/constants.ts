@@ -1,24 +1,26 @@
 import { PrimaryTableCol, TableRowData } from 'tdesign-vue-next';
 
+// 列表
 export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
   { colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left' },
   {
-    title: '租户名称',
+    title: '资源id',
+    width: 180,
+    colKey: 'id',
+  },
+  {
+    title: '资源名称',
     align: 'left',
-    width: 260,
+    width: 200,
     colKey: 'name',
     fixed: 'left',
   },
+
   {
-    title: 'UID',
-    width: 120,
-    colKey: 'uid',
-  },
-  {
-    title: '注册邮箱',
+    title: '资源类型',
     width: 200,
     ellipsis: true,
-    colKey: 'email',
+    colKey: 'type',
   },
   {
     title: '备注',

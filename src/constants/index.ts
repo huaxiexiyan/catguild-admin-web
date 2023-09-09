@@ -52,8 +52,8 @@ export enum ContentTypeEnum {
 
 // 统用二意状态
 export enum ACTIVE_STATUS {
-  ACTIVE,
-  INACTIVE,
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
 }
 
 export const ACTIVE_STATUS_STRING = {
@@ -67,6 +67,24 @@ export const ACTIVE_STATUS_LABEL = {
 export const ACTIVE_STATUS_OPTIONS = [
   { value: ACTIVE_STATUS.ACTIVE, label: ACTIVE_STATUS_LABEL.ACTIVE },
   { value: ACTIVE_STATUS.INACTIVE, label: ACTIVE_STATUS_LABEL.INACTIVE },
+];
+
+export enum YES_NO_STATUS {
+  YES = 'YES',
+  NO = 'NO',
+}
+
+export const YES_NO_STATUS_STRING = {
+  YES: 'YES',
+  NO: 'NO',
+};
+export const YES_NO_STATUS_LABEL = {
+  YES: '是',
+  NO: '否',
+};
+export const YES_NO_STATUS_OPTIONS = [
+  { label: YES_NO_STATUS_LABEL.YES, value: YES_NO_STATUS.YES },
+  { label: YES_NO_STATUS_LABEL.NO, value: YES_NO_STATUS.NO },
 ];
 
 // 通用分页参数请求
