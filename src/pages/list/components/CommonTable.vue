@@ -92,10 +92,8 @@
           </p>
         </template>
         <template #op="slotProps">
-          <t-space>
-            <t-link theme="primary" @click="rehandleClickOp(slotProps)">管理</t-link>
-            <t-link theme="danger" @click="handleClickDelete(slotProps)">删除</t-link>
-          </t-space>
+          <a class="t-button-link" @click="rehandleClickOp(slotProps)">管理</a>
+          <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
         </template>
       </t-table>
       <t-dialog

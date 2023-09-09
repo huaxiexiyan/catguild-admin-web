@@ -20,7 +20,7 @@
             </span>
           </template>
           <template #operation="slotProps">
-            <t-link theme="primary" @click="rehandleClickOp(slotProps)">详情</t-link>
+            <a class="t-button-link" @click="rehandleClickOp(slotProps)">详情</a>
           </template>
         </t-table>
       </t-card>
@@ -43,7 +43,7 @@
             <trend :type="row.growUp > 0 ? 'up' : 'down'" :describe="Math.abs(row.growUp)" />
           </template>
           <template #operation="slotProps">
-            <t-link theme="primary" @click="rehandleClickOp(slotProps)">详情</t-link>
+            <a class="t-button-link" @click="rehandleClickOp(slotProps)">详情</a>
           </template>
         </t-table>
       </t-card>

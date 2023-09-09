@@ -40,10 +40,8 @@
           </span>
         </template>
         <template #op="slotProps">
-          <t-space>
-            <t-link theme="primary" @click="listClick()">管理</t-link>
-            <t-link theme="danger" @click="deleteClickOp(slotProps)">删除</t-link>
-          </t-space>
+          <a :class="prefix + '-link'" @click="listClick()">管理</a>
+          <a :class="prefix + '-link'" @click="deleteClickOp(slotProps)">删除</a>
         </template>
         <template #op-column>
           <t-icon name="descending-order" />
@@ -86,6 +84,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import { getProjectList } from '@/api/detail';
+import { prefix } from '@/config/global';
 import { useSettingStore } from '@/store';
 import { changeChartsTheme } from '@/utils/color';
 
@@ -198,7 +197,7 @@ const deleteClickOp = (e: { rowIndex: number }) => {
 </script>
 
 <style lang="less" scoped>
-@import '../base/index.less';
+@import url('../base/index.less');
 
 .detail-deploy {
   :deep(.t-card) {
