@@ -40,17 +40,20 @@
   </div>
 </template>
 <script setup lang="jsx">
-import {
-  AddRectangleIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  MinusRectangleIcon,
-  MoveIcon,
-} from 'tdesign-icons-vue-next';
-import { EnhancedTable as TEnhancedTable, Loading, MessagePlugin } from 'tdesign-vue-next';
-import { computed, /** , onMounted */ reactive, ref } from 'vue';
+// import {
+//   AddRectangleIcon,
+//   ChevronDownIcon,
+//   ChevronRightIcon,
+//   MinusRectangleIcon,
+//   MoveIcon,
+// } from 'tdesign-icons-vue-next';
+// import { EnhancedTable as TEnhancedTable, Loading, MessagePlugin } from 'tdesign-vue-next';
+// import { computed, /** , onMounted */ reactive, ref } from 'vue';
+// import { getAppPage, getAppVersion } from '@/api/system/app';
+import { EnhancedTable as TEnhancedTable, MessagePlugin } from 'tdesign-vue-next';
+import { reactive, ref } from 'vue';
 
-import { getAppPage, getAppVersion } from '@/api/system/app';
+import { getAppPage } from '@/api/system/app';
 
 const TOTAL = 5;
 // 分页参数
@@ -60,20 +63,20 @@ const pagination = reactive({
   total: TOTAL,
 });
 
-function getObject(i, currentPage) {
-  return {
-    id: i,
-    key: `申请人 ${i}_${currentPage} 号`,
-    platform: ['电子签署', '纸质签署', '纸质签署'][i % 3],
-    type: ['String', 'Number', 'Array', 'Object'][i % 4],
-    default: ['-', '0', '[]', '{}'][i % 4],
-    detail: {
-      position: `读取 ${i} 个数据的嵌套信息值`,
-    },
-    needed: i % 4 === 0 ? '是' : '否',
-    description: '数据源',
-  };
-}
+// function getObject(i, currentPage) {
+//   return {
+//     id: i,
+//     key: `申请人 ${i}_${currentPage} 号`,
+//     platform: ['电子签署', '纸质签署', '纸质签署'][i % 3],
+//     type: ['String', 'Number', 'Array', 'Object'][i % 4],
+//     default: ['-', '0', '[]', '{}'][i % 4],
+//     detail: {
+//       position: `读取 ${i} 个数据的嵌套信息值`,
+//     },
+//     needed: i % 4 === 0 ? '是' : '否',
+//     description: '数据源',
+//   };
+// }
 
 const fetchData = async () => {
   try {
@@ -229,7 +232,7 @@ const columns = [
   },
 ];
 
-const expandAll = ref(false);
+// const expandAll = ref(false);
 
 const onPageChange = (pageInfo) => {
   pagination.current = pageInfo.current;
@@ -237,21 +240,21 @@ const onPageChange = (pageInfo) => {
   data.value = getData();
 };
 
-const treeExpandAndFoldIconRender = (h, { type, row }) => {
-  if (lazyLoadingData.value && lazyLoadingData.value.key === row?.key) {
-    return <Loading size="14px" />;
-  }
-  return type === 'expand' ? <ChevronRightIcon /> : <ChevronDownIcon />;
-};
+// const treeExpandAndFoldIconRender = (h, { type, row }) => {
+//   if (lazyLoadingData.value && lazyLoadingData.value.key === row?.key) {
+//     return <Loading size="14px" />;
+//   }
+//   return type === 'expand' ? <ChevronRightIcon /> : <ChevronDownIcon />;
+// };
 
 // 懒加载图标渲染
-const lazyLoadingTreeIconRender = (h, params) => {
-  const { type, row } = params;
-  if (lazyLoadingData.value && lazyLoadingData.value.key === row?.key) {
-    return <Loading size="14px" />;
-  }
-  return type === 'expand' ? <AddRectangleIcon /> : <MinusRectangleIcon />;
-};
+// const lazyLoadingTreeIconRender = (h, params) => {
+//   const { type, row } = params;
+//   if (lazyLoadingData.value && lazyLoadingData.value.key === row?.key) {
+//     return <Loading size="14px" />;
+//   }
+//   return type === 'expand' ? <AddRectangleIcon /> : <MinusRectangleIcon />;
+// };
 
 // 默认展开全部。示例代码有效，勿删
 // onMounted(() => {
@@ -324,7 +327,7 @@ const beforeDragSort = (params) => {
 };
 </script>
 
-<style>
+<style scoped>
 .tdesign-table-demo__table-operations .t-link {
   padding: 0 8px;
 }

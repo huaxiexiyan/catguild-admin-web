@@ -99,7 +99,11 @@
       </t-table>
     </t-card>
 
-    <dialog-from-tenant v-model:visible="formDialogVisible" :active-form-father="0" />
+    <dialog-from-tenant
+      v-model:visible="formDialogVisible"
+      :active-form-father="0"
+      @close-add-resource-dialog="closeAddResourceDialog"
+    />
   </div>
 </template>
 
@@ -214,6 +218,9 @@ const handleUpdateStatus = (row: { rowIndex: any }) => {
 const formDialogVisible = ref(false);
 const openAddResourceDialog = () => {
   formDialogVisible.value = true;
+};
+const closeAddResourceDialog = () => {
+  formDialogVisible.value = false;
 };
 </script>
 

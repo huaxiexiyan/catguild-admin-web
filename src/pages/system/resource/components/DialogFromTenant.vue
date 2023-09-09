@@ -1,5 +1,5 @@
 <template>
-  <t-dialog header="新建资源" :width="1000" :footer="false">
+  <t-dialog v-model:visible="formDialogVisible" header="新建资源" :width="1000" :footer="false">
     <template #body>
       <div>
         <div class="form-step-container">
@@ -46,7 +46,7 @@
             :data="resourceInfoData"
             :rules="FORM_RULES_MENU"
             label-width="150px"
-            @submit="(result: SubmitContext) => onSubmit(result, 2)"
+            @submit="(result: SubmitContext) => onSubmit(result, 1)"
           >
             <t-form-item label="路由" name="path">
               <t-input
@@ -77,7 +77,6 @@
                 v-model="resourceInfoData.parentId"
                 style="width: 580px; display: inline-block; margin: 0 20px 20px 0"
                 :data="menuTreeData"
-                :keys="{ value: 'id', label: 'name' }"
                 clearable
                 filterable
                 placeholder="-请选择父路由-"
@@ -211,7 +210,6 @@ import { SubmitContext } from 'tdesign-vue-next';
 import { onBeforeUpdate, ref } from 'vue';
 
 import { addMenu, getMenuTree } from '@/api/system/menu';
-// import { useRouter } from 'vue-router';
 import { RESOURCE_TYPE, RESOURCE_TYPE_OPTIONS, ResourceParam } from '@/api/system/model/resourceModel';
 import { addResource } from '@/api/system/resource';
 import { YES_NO_STATUS_LABEL } from '@/constants';
@@ -220,9 +218,16 @@ import { FORM_RULES_MENU, FORM_RULES_RESOURCE, RESOURCE_DATA, RESOURCE_INFO_DATA
 
 const resourceData = ref<ResourceParam>({ ...RESOURCE_DATA });
 const resourceInfoData = ref({ ...RESOURCE_INFO_DATA });
-const activeForm = ref(1);
+const activeForm = ref(0);
 // 资源id
 const resourceId = ref();
+// 控制弹框开关
+const formDialogVisible = ref();
+const $emit = defineEmits(['closeAddResourceDialog']);
+const closeAddResourceDialog = () => {
+  $emit('closeAddResourceDialog', false);
+};
+
 // 提交资源申请
 const onSubmitResource = async () => {
   const { id } = await addResource({ name: resourceData.value.name, type: resourceData.value.type });
@@ -232,6 +237,7 @@ const onSubmitResourceInfo = async () => {
   if (resourceData.value.type === RESOURCE_TYPE.MENU || resourceData.value.type === RESOURCE_TYPE.BUTTON) {
     const { parentId, path, name, component, redirect, meta } = resourceInfoData.value;
     await addMenu({ resourceId: resourceId.value, parentId, path, name, component, redirect, meta });
+    closeAddResourceDialog();
   }
 };
 // 提交下一步
@@ -268,47 +274,18 @@ const fatherProps = defineProps({
 // 在组件即将因为响应式状态变更而更新其 DOM 树之前调用
 onBeforeUpdate(() => {
   activeForm.value = fatherProps.activeFormFather;
-  activeForm.value = 1;
 });
 
 // 父菜单路由
-const menuTreeData = [
-  {
-    name: '广东省',
-    id: 'guangdong',
-    children: [
-      {
-        name: '广州市',
-        id: 'guangzhou',
-      },
-      {
-        name: '深圳市',
-        id: 'shenzhen',
-      },
-    ],
-  },
-  {
-    name: '江苏省',
-    value: 'jiangsu',
-    children: [
-      {
-        name: '南京市',
-        id: 'nanjing',
-      },
-      {
-        name: '苏州市',
-        id: 'suzhou',
-      },
-    ],
-  },
-];
+const menuTreeData = ref();
 const loadingMenuTree = async () => {
   console.log('加载菜单树');
   const menuTree = await getMenuTree();
+  menuTreeData.value = menuTree;
   console.log(menuTree);
 };
 </script>
 
 <style lang="less" scoped>
-@import url('./index.less');
+@import './index.less';
 </style>
