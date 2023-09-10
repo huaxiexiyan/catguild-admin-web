@@ -37,9 +37,9 @@ export interface MenuParam {
 
 // 返回参数
 export interface MenuResult {
-  id: number;
-  parentId: number;
-  resourceId: number;
+  id: string;
+  parentId: string;
+  resourceId: string;
   path: string;
   name: string;
   component: string;
@@ -60,9 +60,9 @@ export interface MenuResult {
 }
 
 export interface MenuTreeResult {
-  id: number;
-  parentId: number;
-  resourceId: number;
+  id: string;
+  parentId: string;
+  resourceId: string;
   path: string;
   name: string;
   component: string;

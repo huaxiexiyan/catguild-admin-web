@@ -21,21 +21,21 @@ export function addMenu(data: MenuParam) {
   });
 }
 // 编辑信息
-export function updateMenu(id: number, data: MenuParam) {
+export function updateMenu(id: string, data: MenuParam) {
   return request.put({
     url: `Api.Menu/${id}`,
     data,
   });
 }
 // 修改状态
-export function updateMenuStatus(id: number, status: ACTIVE_STATUS) {
+export function updateMenuStatus(id: string, status: ACTIVE_STATUS) {
   return request.patch({
     url: `Api.Menu/${id}`,
     data: { status },
   });
 }
 // 删除信息
-export function removeMenu(id: number) {
+export function removeMenu(id: string) {
   return request.delete({
     url: `Api.Menu/${id}`,
   });

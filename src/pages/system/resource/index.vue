@@ -80,6 +80,10 @@
         @change="rehandleChange"
         @select-change="rehandleSelectChange"
       >
+        <template #type="{ row }">
+          <p v-if="row.type === RESOURCE_TYPE.MENU">{{ RESOURCE_TYPE_LABEL.MENU }}</p>
+          <p v-if="row.type === RESOURCE_TYPE.BUTTON">{{ RESOURCE_TYPE_LABEL.BUTTON }}</p>
+        </template>
         <template #status="{ row }">
           <t-switch
             v-model="row.status"
@@ -87,7 +91,7 @@
             :custom-value="[ACTIVE_STATUS.ACTIVE, ACTIVE_STATUS.INACTIVE]"
             :label="[ACTIVE_STATUS_LABEL.ACTIVE, ACTIVE_STATUS_LABEL.INACTIVE]"
             size="large"
-            @change="handleUpdateStatus(row)"
+            @click="handleUpdateStatus(row)"
           >
           </t-switch>
         </template>
@@ -117,8 +121,8 @@ export default {
 import { PageInfo, TableRowData } from 'tdesign-vue-next';
 import { computed, onMounted, ref } from 'vue';
 
-import { RESOURCE_TYPE } from '@/api/system/model/resourceModel';
-import { getResourcePage } from '@/api/system/resource';
+import { RESOURCE_TYPE, RESOURCE_TYPE_LABEL } from '@/api/system/model/resourceModel';
+import { getResourcePage, updateResourceStatus } from '@/api/system/resource';
 import { prefix } from '@/config/global';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
 import { useSettingStore } from '@/store';
@@ -127,7 +131,7 @@ import DialogFromTenant from './components/DialogFromTenant.vue';
 import { COLUMNS } from './constants';
 
 interface QueryData {
-  id?: number;
+  id?: string;
   name: string;
   type?: RESOURCE_TYPE;
   status?: ACTIVE_STATUS;
@@ -209,9 +213,9 @@ const onSubmit = (val: unknown) => {
   fetchData();
 };
 
-const handleUpdateStatus = (row: { rowIndex: any }) => {
-  console.log('改变状态');
-  console.log(row);
+const handleUpdateStatus = async (row: { id: string; status: ACTIVE_STATUS }) => {
+  await updateResourceStatus(row.id, row.status);
+  fetchData();
 };
 
 // 控制新增资源弹框

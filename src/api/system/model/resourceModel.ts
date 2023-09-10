@@ -2,7 +2,7 @@ import { ACTIVE_STATUS, PageParam, PageResult } from '@/constants';
 
 // 分页请求参数
 export interface ResourcePageParam extends PageParam {
-  id: number;
+  id: string;
   name: string;
   type: RESOURCE_TYPE;
   status: ACTIVE_STATUS;
@@ -38,6 +38,6 @@ export const RESOURCE_TYPE_LABEL = {
 };
 
 export const RESOURCE_TYPE_OPTIONS = [
-  { label: RESOURCE_TYPE_LABEL.MENU, value: 'MENU' },
+  { label: RESOURCE_TYPE_LABEL.MENU, value: '菜单' },
   { label: RESOURCE_TYPE_LABEL.BUTTON, value: '按钮' },
 ];

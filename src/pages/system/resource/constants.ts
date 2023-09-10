@@ -15,7 +15,6 @@ export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
     colKey: 'name',
     fixed: 'left',
   },
-
   {
     title: '资源类型',
     width: 200,

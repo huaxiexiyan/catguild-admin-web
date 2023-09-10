@@ -17,7 +17,7 @@ export const RESOURCE_DATA = {
 };
 
 export const RESOURCE_INFO_DATA = {
-  parentId: undefined as number | undefined,
+  parentId: undefined as string | undefined,
   path: '',
   name: '',
   component: '',

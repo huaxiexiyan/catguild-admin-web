@@ -29,8 +29,8 @@ export interface AppResult {
 }
 export interface AppVersionResult {
   name: string;
-  appId: number;
-  parentId: number;
+  appId: string;
+  parentId: string;
   uid: string;
   status: ACTIVE_STATUS;
   cTime: Date;

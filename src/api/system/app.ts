@@ -26,56 +26,56 @@ export function addApp(data: AppParam) {
   });
 }
 // 编辑应用信息
-export function updateApp(id: number, data: AppParam) {
+export function updateApp(id: string, data: AppParam) {
   return request.put({
-    url: `Api.App/${id}`,
+    url: `${Api.App}/${id}`,
     data,
   });
 }
 // 修改应用状态
-export function updateAppStatus(id: number, status: ACTIVE_STATUS) {
+export function updateAppStatus(id: string, status: ACTIVE_STATUS) {
   return request.patch({
-    url: `Api.App/${id}`,
+    url: `${Api.App}/${id}`,
     data: { status },
   });
 }
 // 删除应用信息
-export function removeApp(id: number) {
+export function removeApp(id: string) {
   return request.delete({
-    url: `Api.App/${id}`,
+    url: `${Api.App}/${id}`,
   });
 }
 
 // 获取应用版本列表
-export function getAppVersion(id: number) {
+export function getAppVersion(id: string) {
   return request.get<AppVersionListResult>({
-    url: `Api.App/${id}/versions`,
+    url: `${Api.App}/${id}/versions`,
   });
 }
 // 新增应用版本信息
-export function addAppVersion(id: number, data: AppVersionParam) {
+export function addAppVersion(id: string, data: AppVersionParam) {
   return request.post({
-    url: `Api.App/${id}/versions`,
+    url: `${Api.App}/${id}/versions`,
     data,
   });
 }
 // 编辑应用版本信息
-export function updateAppVersion(id: number, versionId: number, data: AppVersionParam) {
+export function updateAppVersion(id: string, versionId: string, data: AppVersionParam) {
   return request.put({
-    url: `Api.App/${id}/versions/${versionId}`,
+    url: `${Api.App}/${id}/versions/${versionId}`,
     data,
   });
 }
 // 修改应用版本状态
-export function updateAppVersionStatus(id: number, versionId: number, status: ACTIVE_STATUS) {
+export function updateAppVersionStatus(id: string, versionId: string, status: ACTIVE_STATUS) {
   return request.patch({
-    url: `Api.App/${id}/versions/${versionId}`,
+    url: `${Api.App}/${id}/versions/${versionId}`,
     data: { status },
   });
 }
 // 删除应用版本信息
-export function removeAppVersion(id: number, versionId: number) {
+export function removeAppVersion(id: string, versionId: string) {
   return request.delete({
-    url: `Api.App/${id}/versions/${versionId}`,
+    url: `${Api.App}/${id}/versions/${versionId}`,
   });
 }
