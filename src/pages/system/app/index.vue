@@ -1,34 +1,101 @@
 <template>
   <div>
-    <div>
-      <t-button @click="appendToRoot">添加根节点</t-button>
-    </div>
-    <br />
-    <!-- !!! 树形结构 EnhancedTable 才支持，普通 Table 不支持 !!! -->
-    <!-- 第一列展开树结点，缩进为 24px，子节点字段 childrenKey 默认为 children -->
-    <!-- v-model:displayColumns="displayColumns" used to control displayed columns -->
-    <!-- v-model:expandedTreeNodes is not required. you can control expanded tree node by expandedTreeNodes -->
-    <t-enhanced-table
-      ref="tableRef"
-      v-model:expandedTreeNodes="expandedTreeNodes"
-      row-key="id"
-      drag-sort="row-handler"
-      :data="data"
-      :columns="columns"
-      :tree="treeConfig"
-      :pagination="pagination"
-      :before-drag-sort="beforeDragSort"
-      @page-change="onPageChange"
-      @abnormal-drag-sort="onAbnormalDragSort"
-      @drag-sort="onDragSort"
-      @expanded-tree-nodes-change="onExpandedTreeNodesChange"
-    ></t-enhanced-table>
-    <!-- @tree-expand-change="onTreeExpandChange" -->
+    <t-card class="list-card-container" :bordered="false">
+      <t-row justify="space-between">
+        <t-col :span="1">
+          <div class="left-operation-container">
+            <t-button @click="appendToRoot"> 添加根节点 </t-button>
+          </div>
+        </t-col>
+        <t-col :span="11">
+          <div class="search-input">
+            <t-form ref="form" :data="queryData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
+              <t-row>
+                <t-col :span="10" class="input-container">
+                  <t-row :gutter="[0, 0]" justify="end">
+                    <t-col :span="4">
+                      <t-form-item label="资源名称" name="name">
+                        <t-input
+                          v-model="queryData.name"
+                          class="form-item-content"
+                          type="search"
+                          placeholder="资源名称"
+                        />
+                      </t-form-item>
+                    </t-col>
+                    <t-col :span="4">
+                      <t-form-item label="资源id" name="id">
+                        <t-input-number
+                          v-model="queryData.id"
+                          theme="normal"
+                          class="form-item-content"
+                          placeholder="请输入资源id"
+                          :style="{ minWidth: '210px' }"
+                        />
+                      </t-form-item>
+                    </t-col>
+                    <t-col :span="3">
+                      <t-form-item label="状态" name="status">
+                        <t-select
+                          v-model="queryData.status"
+                          class="form-item-content"
+                          :options="ACTIVE_STATUS_OPTIONS"
+                          placeholder="状态"
+                          clearable
+                        />
+                      </t-form-item>
+                    </t-col>
+                  </t-row>
+                </t-col>
 
-    <!-- 第二列展开树结点，缩进为 12px，示例代码有效，勿删 -->
-    <!-- indent 定义缩进距离 -->
-    <!-- 如果子结点字段不是 'children'，可以使用 childrenKey 定义字段别名，如 `:tree="{ childrenKey: 'list' }"` -->
-    <!-- <t-enhanced-table
+                <t-col :span="2" class="operation-container">
+                  <t-button theme="primary" type="submit" :style="{ marginLeft: 'var(--td-comp-margin-s)' }">
+                    查询
+                  </t-button>
+                  <t-button type="reset" variant="base" theme="default"> 重置 </t-button>
+                </t-col>
+              </t-row>
+            </t-form>
+          </div>
+        </t-col>
+      </t-row>
+      <!-- !!! 树形结构 EnhancedTable 才支持，普通 Table 不支持 !!! -->
+      <!-- 第一列展开树结点，缩进为 24px，子节点字段 childrenKey 默认为 children -->
+      <!-- v-model:displayColumns="displayColumns" used to control displayed columns -->
+      <!-- v-model:expandedTreeNodes is not required. you can control expanded tree node by expandedTreeNodes -->
+      <t-enhanced-table
+        ref="tableRef"
+        v-model:expandedTreeNodes="expandedTreeNodes"
+        row-key="id"
+        drag-sort="row-handler"
+        :data="data"
+        :columns="columns"
+        :tree="treeConfig"
+        :pagination="pagination"
+        :before-drag-sort="beforeDragSort"
+        @page-change="onPageChange"
+        @abnormal-drag-sort="onAbnormalDragSort"
+        @drag-sort="onDragSort"
+        @expanded-tree-nodes-change="onExpandedTreeNodesChange"
+      >
+        <template #status="{ row }">
+          <t-switch
+            v-model="row.status"
+            width="120px"
+            :custom-value="[ACTIVE_STATUS.ACTIVE, ACTIVE_STATUS.INACTIVE]"
+            :label="[ACTIVE_STATUS_LABEL.ACTIVE, ACTIVE_STATUS_LABEL.INACTIVE]"
+            size="large"
+            @click="handleUpdateStatus(row)"
+          >
+          </t-switch>
+        </template>
+      </t-enhanced-table>
+      <!-- @tree-expand-change="onTreeExpandChange" -->
+
+      <!-- 第二列展开树结点，缩进为 12px，示例代码有效，勿删 -->
+      <!-- indent 定义缩进距离 -->
+      <!-- 如果子结点字段不是 'children'，可以使用 childrenKey 定义字段别名，如 `:tree="{ childrenKey: 'list' }"` -->
+      <!-- <t-enhanced-table
       ref="tableRef"
       rowKey="key"
       :pagination="defaultPagination"
@@ -37,6 +104,12 @@
       :tree="{ indent: 12, childrenKey: 'list', defaultExpandAll: true }"
       @page-change="onPageChange"
     ></t-enhanced-table> -->
+    </t-card>
+    <!-- <dialog-from-tenant
+      v-model:visible="formDialogVisible"
+      :active-form-father="0"
+      @close-add-resource-dialog="closeAddResourceDialog"
+    /> -->
   </div>
 </template>
 <script setup lang="jsx">
@@ -54,6 +127,7 @@ import { EnhancedTable as TEnhancedTable, MessagePlugin } from 'tdesign-vue-next
 import { reactive, ref } from 'vue';
 
 import { getAppPage } from '@/api/system/app';
+import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL } from '@/constants';
 
 const TOTAL = 5;
 // 分页参数
@@ -101,6 +175,11 @@ function getData() {
 const tableRef = ref(null);
 const data = ref(getData());
 const lazyLoadingData = ref(null);
+// 查询参数
+const searchForm = {
+  name: '',
+};
+const queryData = ref({ ...searchForm });
 
 // 非必须，如果不传，表格有内置树形节点展开逻辑
 const expandedTreeNodes = ref([]);

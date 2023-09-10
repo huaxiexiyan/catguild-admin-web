@@ -2,69 +2,73 @@
   <div>
     <t-card class="list-card-container" :bordered="false">
       <t-row justify="space-between">
-        <div class="left-operation-container">
-          <t-button @click="openAddResourceDialog"> 新增资源 </t-button>
-        </div>
-        <div>
-          <t-form ref="form" :data="queryData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
-            <t-row>
-              <t-col :span="10" class="input-container">
-                <t-row :gutter="[0, 0]" justify="end">
-                  <t-col :span="3">
-                    <t-form-item label="资源名称" name="name">
-                      <t-input
-                        v-model="queryData.name"
-                        class="form-item-content"
-                        type="search"
-                        placeholder="资源名称"
-                      />
-                    </t-form-item>
-                  </t-col>
-                  <t-col :span="3">
-                    <t-form-item label="资源id" name="id">
-                      <t-input-number
-                        v-model="queryData.id"
-                        theme="normal"
-                        class="form-item-content"
-                        placeholder="请输入资源id"
-                        :style="{ minWidth: '180px' }"
-                      />
-                    </t-form-item>
-                  </t-col>
-                  <t-col :span="2">
-                    <t-form-item label="类型" name="type">
-                      <t-select
-                        v-model="queryData.type"
-                        class="form-item-content"
-                        :options="ACTIVE_STATUS_OPTIONS"
-                        placeholder="类型"
-                        clearable
-                      />
-                    </t-form-item>
-                  </t-col>
-                  <t-col :span="2">
-                    <t-form-item label="状态" name="status">
-                      <t-select
-                        v-model="queryData.status"
-                        class="form-item-content"
-                        :options="ACTIVE_STATUS_OPTIONS"
-                        placeholder="状态"
-                        clearable
-                      />
-                    </t-form-item>
-                  </t-col>
-                </t-row>
-              </t-col>
+        <t-col :span="1">
+          <div class="left-operation-container">
+            <t-button @click="openAddResourceDialog"> 新增资源 </t-button>
+          </div>
+        </t-col>
+        <t-col :span="11">
+          <div class="search-input">
+            <t-form ref="form" :data="queryData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
+              <t-row>
+                <t-col :span="10" class="input-container">
+                  <t-row :gutter="[0, 0]" justify="end">
+                    <t-col :span="3">
+                      <t-form-item label="资源名称" name="name">
+                        <t-input
+                          v-model="queryData.name"
+                          class="form-item-content"
+                          type="search"
+                          placeholder="资源名称"
+                        />
+                      </t-form-item>
+                    </t-col>
+                    <t-col :span="3">
+                      <t-form-item label="资源id" name="id">
+                        <t-input-number
+                          v-model="queryData.id"
+                          theme="normal"
+                          class="form-item-content"
+                          placeholder="请输入资源id"
+                          :style="{ minWidth: '180px' }"
+                        />
+                      </t-form-item>
+                    </t-col>
+                    <t-col :span="2">
+                      <t-form-item label="类型" name="type">
+                        <t-select
+                          v-model="queryData.type"
+                          class="form-item-content"
+                          :options="ACTIVE_STATUS_OPTIONS"
+                          placeholder="类型"
+                          clearable
+                        />
+                      </t-form-item>
+                    </t-col>
+                    <t-col :span="2">
+                      <t-form-item label="状态" name="status">
+                        <t-select
+                          v-model="queryData.status"
+                          class="form-item-content"
+                          :options="ACTIVE_STATUS_OPTIONS"
+                          placeholder="状态"
+                          clearable
+                        />
+                      </t-form-item>
+                    </t-col>
+                  </t-row>
+                </t-col>
 
-              <t-col :span="2" class="operation-container">
-                <t-button theme="primary" type="submit" :style="{ marginLeft: 'var(--td-comp-margin-s)' }">
-                  查询
-                </t-button>
-                <t-button type="reset" variant="base" theme="default"> 重置 </t-button>
-              </t-col>
-            </t-row>
-          </t-form>
-        </div>
+                <t-col :span="2" class="operation-container">
+                  <t-button theme="primary" type="submit" :style="{ marginLeft: 'var(--td-comp-margin-s)' }">
+                    查询
+                  </t-button>
+                  <t-button type="reset" variant="base" theme="default"> 重置 </t-button>
+                </t-col>
+              </t-row>
+            </t-form>
+          </div>
+        </t-col>
       </t-row>
       <t-table
         :data="data"
