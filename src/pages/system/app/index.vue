@@ -4,7 +4,7 @@
       <t-row justify="space-between">
         <t-col :span="1">
           <div class="left-operation-container">
-            <t-button @click="appendToRoot"> 添加根节点 </t-button>
+            <t-button @click="appendToRoot"> 添加主应用 </t-button>
           </div>
         </t-col>
         <t-col :span="11">
@@ -126,10 +126,10 @@
 import { EnhancedTable as TEnhancedTable, MessagePlugin } from 'tdesign-vue-next';
 import { reactive, ref } from 'vue';
 
-import { getAppPage } from '@/api/system/app';
-import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL } from '@/constants';
+import { getAppPage, updateAppStatus, updateAppVersionStatus } from '@/api/system/app';
+import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
 
-const TOTAL = 5;
+const TOTAL = 10;
 // 分页参数
 const pagination = reactive({
   current: 1,
@@ -161,8 +161,8 @@ const fetchData = async () => {
     });
     data.value = records;
     pagination.current = current;
-    pagination.current = size;
-    pagination.current = total;
+    pagination.pageSize = size;
+    pagination.total = total;
   } catch (e) {
     console.log(e);
   }
@@ -171,6 +171,11 @@ const fetchData = async () => {
 function getData() {
   fetchData();
 }
+
+// 搜索
+const onSubmit = () => {
+  fetchData();
+};
 
 const tableRef = ref(null);
 const data = ref(getData());
@@ -261,7 +266,7 @@ const columns = [
     colKey: 'id',
     title: '编号',
     ellipsis: true,
-    width: 180,
+    width: 160,
   },
   {
     width: 180,
@@ -277,7 +282,7 @@ const columns = [
   {
     colKey: 'status',
     title: '状态',
-    width: 60,
+    width: 80,
   },
   {
     colKey: 'cTime',
@@ -292,20 +297,27 @@ const columns = [
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     cell: (h, { row }) => (
       <div class="tdesign-table-demo__table-operations">
-        <t-link variant="text" hover="color" onClick={() => appendTo(row)}>
-          新增版本
-        </t-link>
-        <t-link variant="text" hover="color" onClick={() => onEditClick(row)}>
-          更新
-        </t-link>
-        <t-link variant="text" hover="color" onClick={() => onLookUp(row)}>
-          查看
-        </t-link>
-        <t-popconfirm content="确认删除吗" onConfirm={() => onDeleteConfirm(row)}>
-          <t-link variant="text" hover="color" theme="danger">
-            删除
+        <t-space>
+          <t-link
+            style={{ display: row.versions !== undefined ? 'inline' : 'none' }}
+            variant="text"
+            theme="primary"
+            onClick={() => appendTo(row)}
+          >
+            新增版本
           </t-link>
-        </t-popconfirm>
+          <t-link variant="text" hover="color" onClick={() => onEditClick(row)}>
+            更新
+          </t-link>
+          <t-link variant="text" hover="color" onClick={() => onLookUp(row)}>
+            查看
+          </t-link>
+          <t-popconfirm content="确认删除吗" onConfirm={() => onDeleteConfirm(row)}>
+            <t-link variant="text" hover="color" theme="danger">
+              删除
+            </t-link>
+          </t-popconfirm>
+        </t-space>
       </div>
     ),
   },
@@ -403,6 +415,15 @@ const onDragSort = (params) => {
 const beforeDragSort = (params) => {
   console.log('beforeDragSort:', params);
   return true;
+};
+
+const handleUpdateStatus = async (row) => {
+  if (row.versions !== undefined) {
+    await updateAppStatus(row.id, row.status);
+  } else {
+    await updateAppVersionStatus(row.appId, row.id, row.status);
+  }
+  fetchData();
 };
 </script>
 

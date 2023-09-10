@@ -35,7 +35,7 @@ export function updateApp(id: string, data: AppParam) {
 // 修改应用状态
 export function updateAppStatus(id: string, status: ACTIVE_STATUS) {
   return request.patch({
-    url: `${Api.App}/${id}`,
+    url: `${Api.App}/${id}/status`,
     data: { status },
   });
 }
@@ -69,7 +69,7 @@ export function updateAppVersion(id: string, versionId: string, data: AppVersion
 // 修改应用版本状态
 export function updateAppVersionStatus(id: string, versionId: string, status: ACTIVE_STATUS) {
   return request.patch({
-    url: `${Api.App}/${id}/versions/${versionId}`,
+    url: `${Api.App}/${id}/versions/${versionId}/status`,
     data: { status },
   });
 }

@@ -38,6 +38,6 @@ export const RESOURCE_TYPE_LABEL = {
 };
 
 export const RESOURCE_TYPE_OPTIONS = [
-  { label: RESOURCE_TYPE_LABEL.MENU, value: '菜单' },
-  { label: RESOURCE_TYPE_LABEL.BUTTON, value: '按钮' },
+  { label: RESOURCE_TYPE_LABEL.MENU, value: RESOURCE_TYPE.MENU },
+  { label: RESOURCE_TYPE_LABEL.BUTTON, value: RESOURCE_TYPE.BUTTON },
 ];

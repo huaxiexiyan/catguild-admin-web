@@ -229,6 +229,7 @@ const openAddResourceDialog = () => {
 };
 const closeAddResourceDialog = () => {
   formDialogVisible.value = false;
+  fetchData();
 };
 </script>
 
