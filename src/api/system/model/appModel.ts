@@ -16,15 +16,21 @@ export interface AppVersionListResult extends PageResult {
 // 请求参数
 export interface AppParam {
   name: string;
+  status: ACTIVE_STATUS;
+  remarks: string;
 }
 export interface AppVersionParam {
+  parentId: string;
   name: string;
+  status: ACTIVE_STATUS;
+  remarks: string;
 }
 
 // 返回参数
 export interface AppResult {
   name: string;
   status: ACTIVE_STATUS;
+  remarks: string;
   cTime: Date;
 }
 export interface AppVersionResult {
@@ -33,5 +39,6 @@ export interface AppVersionResult {
   parentId: string;
   uid: string;
   status: ACTIVE_STATUS;
+  remarks: string;
   cTime: Date;
 }

@@ -4,7 +4,7 @@
       <t-row justify="space-between">
         <t-col :span="1">
           <div class="left-operation-container">
-            <t-button @click="appendToRoot"> 添加主应用 </t-button>
+            <t-button @click="openAddAppDialog"> 添加主应用 </t-button>
           </div>
         </t-col>
         <t-col :span="11">
@@ -105,11 +105,17 @@
       @page-change="onPageChange"
     ></t-enhanced-table> -->
     </t-card>
-    <!-- <dialog-from-tenant
+    <dialog-from-app
       v-model:visible="formDialogVisible"
-      :active-form-father="0"
-      @close-add-resource-dialog="closeAddResourceDialog"
-    /> -->
+      :dialog-header-value="dialogHeaderValue"
+      @close-add-app-dialog="closeAddAppDialog"
+    />
+    <dialog-from-app-vserion
+      v-model:visible="formDialogVersionVisible"
+      :dialog-header-prop="dialogVersionHeaderProp"
+      :app-id-prop="appIdProp"
+      @close-add-app-version-dialog="closeAddAppVersionDialog"
+    />
   </div>
 </template>
 <script setup lang="jsx">
@@ -128,6 +134,9 @@ import { reactive, ref } from 'vue';
 
 import { getAppPage, updateAppStatus, updateAppVersionStatus } from '@/api/system/app';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
+
+import DialogFromApp from './components/DialogFromApp.vue';
+import DialogFromAppVserion from './components/DialogFromAppVersion.vue';
 
 const TOTAL = 10;
 // 分页参数
@@ -202,34 +211,20 @@ const onEditClick = (row) => {
   MessagePlugin.success('数据已更新');
 };
 
-const onDeleteConfirm = (row) => {
-  // 移除当前节点及其所有子节点
-  tableRef.value.remove(row.key);
+// const onDeleteConfirm = (row) => {
+//   // 移除当前节点及其所有子节点
+//   tableRef.value.remove(row.key);
 
-  // 仅移除所有子节点
-  // tableRef.value.removeChildren(row.key);
-  MessagePlugin.success('删除成功');
-};
+//   // 仅移除所有子节点
+//   // tableRef.value.removeChildren(row.key);
+//   MessagePlugin.success('删除成功');
+// };
 
 const onLookUp = (row) => {
   const allRowData = tableRef.value.getData(row.key);
   const message = '当前行全部数据，包含节点路径、父节点、子节点、是否展开、是否禁用等';
   MessagePlugin.success(`打开控制台查看${message}`);
   console.log(`${message}：`, allRowData);
-};
-
-const appendTo = (row) => {
-  const randomKey1 = Math.round(Math.random() * Math.random() * 1000) + 10000;
-  tableRef.value.appendTo(row.key, {
-    id: randomKey1,
-    key: `申请人 ${randomKey1} 号`,
-    platform: '电子签署',
-    type: 'Number',
-  });
-  MessagePlugin.success(`已插入子节点申请人 ${randomKey1} 号，请展开查看`);
-
-  // 一次性添加多个子节点。示例代码有效，勿删！!!
-  // appendMultipleDataTo(row);
 };
 
 function appendMultipleDataTo(row) {
@@ -257,16 +252,14 @@ function appendMultipleDataTo(row) {
       list: true,
     },
   ];
-  tableRef.value.appendTo(row?.key, appendList);
   MessagePlugin.success(`已插入子节点申请人 ${randomKey1} 和 ${randomKey2} 号，请展开查看`);
 }
 
 const columns = [
   {
-    colKey: 'id',
-    title: '编号',
-    ellipsis: true,
-    width: 160,
+    colKey: 'uid',
+    title: 'UID',
+    width: 100,
   },
   {
     width: 180,
@@ -275,14 +268,15 @@ const columns = [
     ellipsis: true,
   },
   {
-    colKey: 'uid',
-    title: 'UID',
-    width: 100,
-  },
-  {
     colKey: 'status',
     title: '状态',
     width: 80,
+  },
+  {
+    colKey: 'remarks',
+    title: '备注',
+    ellipsis: true,
+    width: 160,
   },
   {
     colKey: 'cTime',
@@ -302,7 +296,7 @@ const columns = [
             style={{ display: row.versions !== undefined ? 'inline' : 'none' }}
             variant="text"
             theme="primary"
-            onClick={() => appendTo(row)}
+            onClick={() => openAddAppVersionDialog(row)}
           >
             新增版本
           </t-link>
@@ -310,13 +304,13 @@ const columns = [
             更新
           </t-link>
           <t-link variant="text" hover="color" onClick={() => onLookUp(row)}>
-            查看
+            详情
           </t-link>
-          <t-popconfirm content="确认删除吗" onConfirm={() => onDeleteConfirm(row)}>
+          {/* <t-popconfirm content="确认删除吗" onConfirm={() => onDeleteConfirm(row)}>
             <t-link variant="text" hover="color" theme="danger">
               删除
             </t-link>
-          </t-popconfirm>
+          </t-popconfirm> */}
         </t-space>
       </div>
     ),
@@ -351,27 +345,6 @@ const onPageChange = (pageInfo) => {
 // onMounted(() => {
 //   tableRef.value.expandAll();
 // });
-
-const appendToRoot = () => {
-  const key = Math.round(Math.random() * 10010);
-  const newData = {
-    id: key,
-    key: `申请人 ${key}_${1} 号`,
-    platform: key % 2 === 0 ? '共有' : '私有',
-    type: ['String', 'Number', 'Array', 'Object'][key % 4],
-    default: ['-', '0', '[]', '{}'][key % 4],
-    detail: {
-      position: `读取 ${key} 个数据的嵌套信息值`,
-    },
-    needed: key % 4 === 0 ? '是' : '否',
-    description: '数据源',
-  };
-  // data.value.push(newData);
-  tableRef.value.appendTo('', newData);
-
-  // 同时添加多个元素，示例代码有效勿删
-  // appendMultipleDataTo();
-};
 
 const onAbnormalDragSort = (params) => {
   console.log(params);
@@ -423,6 +396,30 @@ const handleUpdateStatus = async (row) => {
   } else {
     await updateAppVersionStatus(row.appId, row.id, row.status);
   }
+  fetchData();
+};
+
+// 控制应用弹框
+const formDialogVisible = ref(false);
+const dialogHeaderValue = ref();
+const openAddAppDialog = () => {
+  formDialogVisible.value = true;
+};
+const closeAddAppDialog = () => {
+  formDialogVisible.value = false;
+  fetchData();
+};
+
+// 控制应用版本弹框
+const formDialogVersionVisible = ref(false);
+const dialogVersionHeaderProp = ref();
+const appIdProp = ref();
+const openAddAppVersionDialog = (row) => {
+  appIdProp.value = row.id;
+  formDialogVersionVisible.value = true;
+};
+const closeAddAppVersionDialog = () => {
+  formDialogVersionVisible.value = false;
   fetchData();
 };
 </script>
