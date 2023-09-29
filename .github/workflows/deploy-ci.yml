@@ -38,4 +38,4 @@ jobs:
 
       - name: Build project
         run: |
-          docker build . .
+          docker build ./
