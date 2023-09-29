@@ -125,7 +125,7 @@ watch(
 );
 
 // 校验规则
-const rules: FormRules<FormData> = {
+const rules = {
   name: [{ required: true, message: '请输入产品名称', type: 'error' }],
   email: [
     { required: true, message: '请输入邮箱', type: 'error' },

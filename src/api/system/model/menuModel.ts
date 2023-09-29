@@ -2,7 +2,7 @@ import { ACTIVE_STATUS, PageParam, PageResult } from '@/constants';
 
 // 分页请求参数
 export interface MenuPageParam extends PageParam {
-  id: number;
+  id: string;
   name: string;
   type: RESOURCE_TYPE;
   status: ACTIVE_STATUS;
@@ -14,8 +14,8 @@ export interface MenuPageResult extends PageResult {
 
 // 请求参数
 export interface MenuParam {
-  parentId: number;
-  resourceId: number;
+  parentId: string;
+  resourceId: string;
   path: string;
   name: string;
   component: string;
