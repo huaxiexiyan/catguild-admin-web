@@ -30,16 +30,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Build project
-        run: |
-          docker build -t catguild-admin-web:main .
-          docker images
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v1.10.0
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push Docker image
-        run: docker push catguild-admin-web:main
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/catguild-admin-web:main
