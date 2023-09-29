@@ -26,9 +26,12 @@ jobs:
         id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
         with:
           path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-dependencies-
+
+      - name: Check if cache was hit
+        run: echo "cache hit = ${{ steps.npm-cache.outputs.cache-hit }}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
