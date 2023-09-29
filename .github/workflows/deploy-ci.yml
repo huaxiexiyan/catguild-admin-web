@@ -19,7 +19,9 @@ jobs:
       - name: Get npm cache directory
         id: npm-cache-dir
         shell: bash
-        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+        run: |
+          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(npm config get cache)"
 
       - name: Apply npm cache
         uses: actions/cache@v3
