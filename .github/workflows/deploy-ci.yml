@@ -41,4 +41,4 @@ jobs:
           docker build -t catguild-admin-web:main .
 
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/catguild-admin-web:main
+        run: docker push catguild-admin-web:main
