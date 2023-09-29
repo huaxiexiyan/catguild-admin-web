@@ -30,15 +30,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      - name: Build project
+        run: |
+          docker build -t catguild-admin-web:main .
+          docker images
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v1.10.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build project
-        run: |
-          docker build -t catguild-admin-web:main .
 
       - name: Push Docker image
         run: docker push catguild-admin-web:main
