@@ -20,6 +20,7 @@ jobs:
         id: npm-cache-dir
         shell: bash
         run: |
+          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
           echo "dir=$(npm config get cache)" >> ${GITHUB_ENV}
           echo "dir=$(npm config get cache)"
 
