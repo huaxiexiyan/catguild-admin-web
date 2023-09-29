@@ -10,7 +10,7 @@ on:
 
 jobs:
   push_to_registry:
-    name: CI-Gateway
+    name: CI-deploy
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
