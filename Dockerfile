@@ -1,16 +1,29 @@
-FROM tdesign.tencent.com/noc/nodejs:16.6 AS builder
-LABEL maintainer="username<username@tencent.com>"
+# 使用 Node.js 作为基础镜像，用于构建和运行 Vue.js 项目
+FROM node:18.16.0 as build-stage
 
-ARG BRANCH
-COPY . /
+# 设置工作目录
+WORKDIR /app
 
-RUN npm config set registry https://registry.npmjs.org/
-RUN npm install && npm run build
+# 复制项目文件（package.json 和 package-lock.json）
+COPY package*.json ./
 
-FROM tdesign.tencent.com/iyunwei/openresty
+# 安装项目依赖
+RUN npm install
 
-#EXPOSE 80
+# 复制项目源代码到工作目录
+COPY . .
 
-COPY ./docker/nginx.conf /etc/nginx/conf.d
-RUN  mkdir -p /data/wwwlogs/ && chown -R nobody:nobody /data/wwwlogs/
-COPY --from=builder dist dist
+# 构建 Vue.js 应用程序
+RUN npm run build
+
+# 构建生产镜像
+FROM nginx:alpine
+
+# 将构建好的 Vue.js 应用程序复制到 Nginx 默认网站目录
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# 暴露端口（Nginx 默认端口为 80）
+EXPOSE 80
+
+# 启动 Nginx
+CMD ["nginx", "-g", "daemon off;"]
