@@ -7,6 +7,10 @@ WORKDIR /app
 # 复制项目文件（package.json 和 package-lock.json）
 COPY package*.json ./
 
+# 使用 npm 缓存目录
+ARG NPM_CACHE_DIR=/root/.npm
+ENV npm_config_cache=${NPM_CACHE_DIR}
+
 # 安装项目依赖
 RUN npm install
 

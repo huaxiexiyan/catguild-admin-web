@@ -20,7 +20,7 @@ jobs:
         id: npm-cache-dir
         shell: bash
         run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(npm config get cache)" >> ${GITHUB_ENV}
           echo "dir=$(npm config get cache)"
 
       - name: Apply npm cache
@@ -49,3 +49,6 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/catguild-admin-web:main
+          # 将 npm 缓存目录传递给 Docker 构建
+          build-args: |
+            NPM_CACHE_DIR=${{ env.dir }}
