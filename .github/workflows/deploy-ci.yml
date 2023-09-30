@@ -23,6 +23,7 @@ jobs:
           echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
           echo "dir=$(npm config get cache)" >> ${GITHUB_ENV}
           echo "dir=$(npm config get cache)"
+          echo "docker images=$(docker images)"
 
       - name: Apply npm cache
         uses: actions/cache@v3
@@ -36,6 +37,7 @@ jobs:
       - name: Check if cache was hit
         run: echo "cache hit = ${{ steps.npm-cache.outputs.cache-hit }}"
 
+# 这个步骤会生成多个平台的镜像
 #      - name: Set up Docker Buildx
 #        uses: docker/setup-buildx-action@v3
 
@@ -50,6 +52,12 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/catguild-admin-web:main
+          # 缓存配置
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
           # 将 npm 缓存目录传递给 Docker 构建
           build-args: |
             NPM_CACHE_DIR=${{ env.dir }}
+
+      - name: Echo docker images
+        run: echo "docker images=$(docker images)"
