@@ -146,21 +146,6 @@ const pagination = reactive({
   total: TOTAL,
 });
 
-// function getObject(i, currentPage) {
-//   return {
-//     id: i,
-//     key: `申请人 ${i}_${currentPage} 号`,
-//     platform: ['电子签署', '纸质签署', '纸质签署'][i % 3],
-//     type: ['String', 'Number', 'Array', 'Object'][i % 4],
-//     default: ['-', '0', '[]', '{}'][i % 4],
-//     detail: {
-//       position: `读取 ${i} 个数据的嵌套信息值`,
-//     },
-//     needed: i % 4 === 0 ? '是' : '否',
-//     description: '数据源',
-//   };
-// }
-
 const fetchData = async () => {
   try {
     const { records, size, total, current } = await getAppPage({
