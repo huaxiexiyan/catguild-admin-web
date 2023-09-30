@@ -47,6 +47,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: build docker driver
+        run:  $ docker buildx create \
+          --name container \
+          --driver=docker-container
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
