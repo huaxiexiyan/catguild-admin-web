@@ -53,11 +53,8 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/catguild-admin-web:main
           # 缓存配置
-#          cache-from: type=gha
-#          cache-to: type=gha,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           # 将 npm 缓存目录传递给 Docker 构建
           build-args: |
             NPM_CACHE_DIR=${{ env.dir }}
-
-      - name: Echo docker images
-        run: echo "docker images=$(docker images)"
