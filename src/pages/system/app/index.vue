@@ -119,16 +119,6 @@
   </div>
 </template>
 <script setup lang="jsx">
-// import {
-//   AddRectangleIcon,
-//   ChevronDownIcon,
-//   ChevronRightIcon,
-//   MinusRectangleIcon,
-//   MoveIcon,
-// } from 'tdesign-icons-vue-next';
-// import { EnhancedTable as TEnhancedTable, Loading, MessagePlugin } from 'tdesign-vue-next';
-// import { computed, /** , onMounted */ reactive, ref } from 'vue';
-// import { getAppPage, getAppVersion } from '@/api/system/app';
 import { EnhancedTable as TEnhancedTable, MessagePlugin } from 'tdesign-vue-next';
 import { reactive, ref } from 'vue';
 
