@@ -18,8 +18,7 @@ RUN npm install
 COPY . .
 
 # 构建 Vue.js 应用程序
-RUN npm run build && \
-    cp -r node_modules /host
+RUN npm run build
 
 # 构建生产镜像
 FROM nginx:alpine
