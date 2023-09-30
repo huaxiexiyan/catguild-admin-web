@@ -16,26 +16,8 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        shell: bash
-        run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-          echo "dir=$(npm config get cache)" >> ${GITHUB_ENV}
-          echo "dir=$(npm config get cache)"
-          echo "docker images=$(docker images)"
-
-      - name: Apply npm cache
-        uses: actions/cache@v3
-        id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
-        with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-dependencies-
-
-      - name: Check if cache was hit
-        run: echo "cache hit = ${{ steps.npm-cache.outputs.cache-hit }}"
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       # 这个步骤会生成多个平台的镜像
       - name: Set up Docker Buildx
@@ -47,11 +29,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-#      - name: build docker driver
-#        run:  $ docker buildx create \
-#          --name container \
-#          --driver=docker-container
-
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -60,6 +37,3 @@ jobs:
           # 缓存配置
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          # 将 npm 缓存目录传递给 Docker 构建
-          build-args: |
-            NPM_CACHE_DIR=${{ env.dir }}
