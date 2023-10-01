@@ -227,7 +227,7 @@ function appendMultipleDataTo(row) {
   //     list: true,
   //   },
   // ];
-  MessagePlugin.success(`已插入子节点申请人 ${randomKey1} 和 ${randomKey2} 号，请展开查看`);
+  // MessagePlugin.success(`已插入子节点申请人 ${randomKey1} 和 ${randomKey2} 号，请展开查看`);
 }
 
 const columns = [
