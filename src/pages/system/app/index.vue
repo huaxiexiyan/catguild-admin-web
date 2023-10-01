@@ -206,27 +206,27 @@ function appendMultipleDataTo(row) {
   const randomKey1 = Math.round(Math.random() * Math.random() * 1000) + 10000;
   const randomKey2 = Math.round(Math.random() * Math.random() * 1000) + 10000;
   const randomKey3 = Math.round(Math.random() * Math.random() * 1000) + 10000;
-  const appendList = [
-    {
-      id: randomKey1,
-      key: `申请人 ${randomKey1} 号`,
-      platform: '电子签署',
-      type: 'Number',
-    },
-    {
-      id: randomKey2,
-      key: `申请人 ${randomKey2} 号`,
-      platform: '纸质签署',
-      type: 'Number',
-    },
-    {
-      id: randomKey3,
-      key: `申请人 ${randomKey3} 号`,
-      platform: '纸质签署',
-      type: 'Number',
-      list: true,
-    },
-  ];
+  // const appendList = [
+  //   {
+  //     id: randomKey1,
+  //     key: `申请人 ${randomKey1} 号`,
+  //     platform: '电子签署',
+  //     type: 'Number',
+  //   },
+  //   {
+  //     id: randomKey2,
+  //     key: `申请人 ${randomKey2} 号`,
+  //     platform: '纸质签署',
+  //     type: 'Number',
+  //   },
+  //   {
+  //     id: randomKey3,
+  //     key: `申请人 ${randomKey3} 号`,
+  //     platform: '纸质签署',
+  //     type: 'Number',
+  //     list: true,
+  //   },
+  // ];
   MessagePlugin.success(`已插入子节点申请人 ${randomKey1} 和 ${randomKey2} 号，请展开查看`);
 }
 
