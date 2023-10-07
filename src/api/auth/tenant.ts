@@ -1,4 +1,4 @@
-import type { Tenant, TenantPageParam, TenantPageResult } from '@/api/auth/model/tenantModel';
+import type { Tenant, TenantInfoParam, TenantPageParam, TenantPageResult } from '@/api/auth/model/tenantModel';
 import { request } from '@/utils/request';
 
 const Api = {
@@ -19,8 +19,9 @@ export function addTenant(data: Tenant) {
   });
 }
 
-export function getTenantInfo() {
+export function getTenantInfo(params: TenantInfoParam) {
   return request.get<Tenant>({
     url: `${Api.Tenant}/info`,
+    params,
   });
 }

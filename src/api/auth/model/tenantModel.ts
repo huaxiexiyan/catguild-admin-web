@@ -5,6 +5,10 @@ export interface TenantPageParam extends PageParam {
   name: string;
 }
 
+export interface TenantInfoParam {
+  domainName: string;
+}
+
 export interface TenantPageResult extends PageResult {
   records: Array<Tenant>;
 }

@@ -152,7 +152,7 @@ const onSubmit = async (ctx: SubmitContext) => {
 };
 
 const fetchTenantInfo = async () => {
-  const { id } = await getTenantInfo();
+  const { id } = await getTenantInfo({ domainName: window.location.hostname });
   tenantId.value = id;
 };
 
