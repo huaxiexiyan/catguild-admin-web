@@ -82,9 +82,10 @@
 import QrcodeVue from 'qrcode.vue';
 import type { FormInstanceFunctions, FormRule, SubmitContext } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import { getTenantInfo } from '@/api/auth/tenant';
 import { useCounter } from '@/hooks';
 import { useUserStore } from '@/store';
 
@@ -96,6 +97,7 @@ const INITIAL_DATA = {
   password: 'password',
   verifyCode: '',
   checked: false,
+  tenantId: '',
 };
 
 const FORM_RULES: Record<string, FormRule[]> = {
@@ -110,6 +112,7 @@ const type = ref('password');
 const form = ref<FormInstanceFunctions>();
 const formData = ref({ ...INITIAL_DATA });
 const showPsw = ref(false);
+const tenantId = ref();
 
 const [countDown, handleCounter] = useCounter();
 
@@ -134,6 +137,7 @@ const sendCode = () => {
 const onSubmit = async (ctx: SubmitContext) => {
   if (ctx.validateResult === true) {
     try {
+      formData.value.tenantId = tenantId.value;
       await userStore.login(formData.value);
 
       MessagePlugin.success('登陆成功');
@@ -146,6 +150,17 @@ const onSubmit = async (ctx: SubmitContext) => {
     }
   }
 };
+
+const fetchTenantInfo = async () => {
+  const { id } = await getTenantInfo();
+  tenantId.value = id;
+};
+
+// 挂载前请求
+onMounted(() => {
+  // 进入登录页，获取租户信息
+  fetchTenantInfo();
+});
 </script>
 
 <style lang="less" scoped>

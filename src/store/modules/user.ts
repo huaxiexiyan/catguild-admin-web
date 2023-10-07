@@ -21,11 +21,12 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async login(userInfo: Record<string, unknown>) {
-      const { account, password } = userInfo;
+      const { account, password, tenantId } = userInfo;
       const res = await passwordLogin({
         grant_type: 'password',
         username: account as string,
         password: password as string,
+        tenantId: tenantId as string,
       });
       if (res && res.access_token && res.access_token != null && res.access_token !== '') {
         this.token = res.access_token;

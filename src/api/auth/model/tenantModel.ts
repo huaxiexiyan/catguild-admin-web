@@ -11,10 +11,12 @@ export interface TenantPageResult extends PageResult {
 
 // 返回参数
 export interface Tenant {
+  id: string;
   name: string;
   code: string;
   email: string;
   remarks: string;
   status: string;
+  domainName: string;
   createdTime: Date;
 }

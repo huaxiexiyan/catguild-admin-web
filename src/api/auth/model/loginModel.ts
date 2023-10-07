@@ -3,6 +3,7 @@ export interface LoginParam {
   grant_type: string;
   username: string;
   password: string;
+  tenantId: string;
 }
 
 // 密码模式登录返回参数

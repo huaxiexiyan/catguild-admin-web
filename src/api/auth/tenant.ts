@@ -2,20 +2,25 @@ import type { Tenant, TenantPageParam, TenantPageResult } from '@/api/auth/model
 import { request } from '@/utils/request';
 
 const Api = {
-  TenantPage: '/auth/tenants',
-  AddTenant: '/auth/tenants',
+  Tenant: '/auth/tenants',
 };
 
 export function getTenantPage(params: TenantPageParam) {
   return request.get<TenantPageResult>({
-    url: Api.TenantPage,
+    url: Api.Tenant,
     params,
   });
 }
 
 export function addTenant(data: Tenant) {
   return request.post({
-    url: Api.AddTenant,
+    url: Api.Tenant,
     data,
+  });
+}
+
+export function getTenantInfo() {
+  return request.get<Tenant>({
+    url: `${Api.Tenant}/info`,
   });
 }
