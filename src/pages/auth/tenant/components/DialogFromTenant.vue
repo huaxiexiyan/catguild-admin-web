@@ -1,5 +1,5 @@
 <template>
-  <t-dialog v-model:visible="formVisible" header="新建产品" :width="680" :footer="false">
+  <t-dialog v-model:visible="formVisible" header="新建租户" :width="680" :footer="false">
     <template #body>
       <!-- 表单内容 -->
       <t-form
