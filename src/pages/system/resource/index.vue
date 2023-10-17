@@ -30,7 +30,6 @@
                           theme="normal"
                           class="form-item-content"
                           placeholder="请输入资源id"
-                          :style="{ minWidth: '180px' }"
                         />
                       </t-form-item>
                     </t-col>
