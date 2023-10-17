@@ -155,7 +155,7 @@ import { addMenu, getMenu, getMenuTree } from '@/api/system/menu';
 import { MenuParam } from '@/api/system/model/menuModel';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, YES_NO_STATUS_LABEL } from '@/constants';
 
-import { addMenuRules } from './addMenuConstants';
+import { addMenuRules } from './saveMenuConstants';
 
 // 传值父组件
 const $emit = defineEmits(['closeAddMenuDialog']);
