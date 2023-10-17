@@ -2,13 +2,13 @@
   <div>
     <t-card class="list-card-container" :bordered="false">
       <t-row justify="space-between">
-        <t-col :span="1">
+        <t-col :span="2">
           <div class="left-operation-container">
             <t-button @click="openSaveMenuDialog"> 添加菜单 </t-button>
             <t-button @click="openSaveMenuDialog"> 刷新资源点 </t-button>
           </div>
         </t-col>
-        <t-col :span="11">
+        <t-col :span="10">
           <div class="search-input">
             <t-form ref="form" :data="queryData" :label-width="80" colon @submit="onSubmit">
               <t-row>
