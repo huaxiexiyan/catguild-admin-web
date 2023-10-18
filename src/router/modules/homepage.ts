@@ -10,7 +10,7 @@ export default [
     redirect: '/dashboard/base',
     name: 'dashboard',
     meta: {
-      title: '仪表盘',
+      title: '首页',
       icon: shallowRef(DashboardIcon),
       orderNo: 0,
     },
@@ -20,7 +20,7 @@ export default [
         name: 'DashboardBase',
         component: () => import('@/pages/dashboard/base/index.vue'),
         meta: {
-          title: '概览仪表盘',
+          title: '欢迎登录',
         },
       },
       {
@@ -29,6 +29,7 @@ export default [
         component: () => import('@/pages/dashboard/detail/index.vue'),
         meta: {
           title: '统计报表',
+          hidden: true,
         },
       },
     ],
