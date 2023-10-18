@@ -22,6 +22,11 @@ FROM nginx:alpine
 # 将构建好的 Vue.js 应用程序复制到 Nginx 默认网站目录
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
+# 删除原本的默认配置
+RUN rm /etc/nginx/nginx.conf
+# 复制nginx配置文件到
+COPY ./nginx.conf /etc/nginx/
+
 # 暴露端口（Nginx 默认端口为 80）
 EXPOSE 80
 
