@@ -215,3 +215,4 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
   );
 }
 export const request = createAxios();
+export const apiUrl = host + import.meta.env.VITE_API_URL_PREFIX;

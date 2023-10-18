@@ -6,9 +6,9 @@
           <div class="left-operation-container">
             <t-upload
               ref="uploadRef1"
-              action="http://127.0.0.1:20000/api/business/erp/online/orders/import"
+              :action="`${apiUrl}/business/erp/online/orders/import`"
               theme="file"
-              placeholder="相同订单号会被覆盖更新"
+              tips="相同订单号会被覆盖更新"
               accept="csv"
               :headers="{ Authorization: `Bearer ${token}` }"
               :size-limit="{ size: 10, unit: 'MB' }"
@@ -112,6 +112,7 @@ import {
 } from '@/api/business/erp/model/onlineOrderModel';
 import { getOnlineOrderPage } from '@/api/business/erp/onlineOrder';
 import { useUserStore } from '@/store';
+import { apiUrl } from '@/utils/request';
 
 const { token } = useUserStore();
 // 表格显示
