@@ -152,8 +152,10 @@ const onSubmit = async (ctx: SubmitContext) => {
 };
 
 const fetchTenantInfo = async () => {
-  const { id } = await getTenantInfo({ domainName: window.location.hostname });
-  tenantId.value = id;
+  const tenants = await getTenantInfo({ domainName: window.location.hostname });
+  if (tenants.length === 1) {
+    tenantId.value = tenants.pop().id;
+  }
 };
 
 // 挂载前请求

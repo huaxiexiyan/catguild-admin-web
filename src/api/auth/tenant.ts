@@ -20,7 +20,7 @@ export function addTenant(data: Tenant) {
 }
 
 export function getTenantInfo(params: TenantInfoParam) {
-  return request.get<Tenant>({
+  return request.get<Array<Tenant>>({
     url: `${Api.Tenant}/info`,
     params,
   });
