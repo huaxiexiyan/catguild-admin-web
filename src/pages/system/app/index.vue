@@ -101,6 +101,7 @@
       :dialog-is-main="dialogIsMain"
       @close-add-app-dialog="closeAddAppDialog"
     />
+    <drawer-app-config v-if="drawerAppConfigVisible" v-model:visible="drawerAppConfigVisible" />
   </div>
 </template>
 <script setup lang="jsx">
@@ -111,6 +112,7 @@ import { getAppPage, updateAppActiveStatus } from '@/api/system/app';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
 
 import DialogFromApp from './components/DialogFromApp.vue';
+import DrawerAppConfig from './components/DrawerAppConfig.vue';
 
 // 分页参数
 const pagination = reactive({
@@ -263,7 +265,7 @@ const columns = [
           <t-link variant="text" theme="primary" hover="color" onClick={() => onLookUp(row)}>
             详情
           </t-link>
-          <t-link variant="text" theme="primary" hover="color" onClick={() => onLookUp(row)}>
+          <t-link variant="text" theme="primary" hover="color" onClick={() => displayDrawerAppConfig(row)}>
             资源配置
           </t-link>
           {/* <t-popconfirm content="确认删除吗" onConfirm={() => onDeleteConfirm(row)}>
@@ -400,6 +402,13 @@ const onEditClick = (row) => {
   dialogIsAdd.value = false;
   // 打开弹框
   formDialogVisible.value = true;
+};
+
+// app配置
+const drawerAppConfigVisible = ref(false);
+
+const displayDrawerAppConfig = () => {
+  drawerAppConfigVisible.value = true;
 };
 </script>
 

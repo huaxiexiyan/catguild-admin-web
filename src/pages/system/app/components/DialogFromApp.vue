@@ -1,11 +1,5 @@
 <template>
-  <t-dialog
-    v-model:visible="formVisible"
-    :header="dialogHeaderName"
-    :width="680"
-    :footer="false"
-    :on-close="closeAddAppDialog"
-  >
+  <t-dialog :header="dialogHeaderName" :width="680" :footer="false" :on-close="closeAddAppDialog">
     <template #body>
       <t-form
         ref="formValidatorStatus"
@@ -99,7 +93,6 @@ const INITIAL_DATA: AppParam = {
 // 清空校验结果
 const formValidatorStatus = ref(null);
 const formData = ref({ ...INITIAL_DATA });
-const formVisible = ref(false);
 
 // 确认提交应用请求
 const submitApp = async ({ validateResult, firstError }) => {
