@@ -9,36 +9,21 @@ export interface AppPageResult extends PageResult {
   records: Array<AppResult>;
 }
 
-export interface AppVersionListResult extends PageResult {
-  records: Array<AppResult>;
-}
-
 // 请求参数
 export interface AppParam {
-  name: string;
-  status: ACTIVE_STATUS;
-  remarks: string;
-}
-export interface AppVersionParam {
-  parentId: string;
-  name: string;
-  status: ACTIVE_STATUS;
-  remarks: string;
+  id?: string;
+  name?: string;
+  activeStatus?: ACTIVE_STATUS;
+  describe?: string;
+  parentApp?: { id: string };
 }
 
 // 返回参数
 export interface AppResult {
+  id: string;
   name: string;
-  status: ACTIVE_STATUS;
-  remarks: string;
-  cTime: Date;
-}
-export interface AppVersionResult {
-  name: string;
-  appId: string;
-  parentId: string;
-  uid: string;
-  status: ACTIVE_STATUS;
-  remarks: string;
+  parentApp: AppResult;
+  activeStatus: ACTIVE_STATUS;
+  describe: string;
   cTime: Date;
 }

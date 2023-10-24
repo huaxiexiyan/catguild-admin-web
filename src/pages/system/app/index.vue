@@ -4,12 +4,12 @@
       <t-row justify="space-between">
         <t-col :span="1">
           <div class="left-operation-container">
-            <t-button @click="openAddAppDialog"> 添加主应用 </t-button>
+            <t-button @click="openAddAppDialog"> 添加应用 </t-button>
           </div>
         </t-col>
         <t-col :span="11">
           <div class="search-input">
-            <t-form ref="form" :data="queryData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
+            <t-form ref="form" :data="queryData" :label-width="80" colon @submit="onSubmit">
               <t-row>
                 <t-col :span="10" class="input-container">
                   <t-row :gutter="[0, 0]" justify="end">
@@ -78,9 +78,9 @@
         @drag-sort="onDragSort"
         @expanded-tree-nodes-change="onExpandedTreeNodesChange"
       >
-        <template #status="{ row }">
+        <template #activeStatus="{ row }">
           <t-switch
-            v-model="row.status"
+            v-model="row.activeStatus"
             width="120px"
             :custom-value="[ACTIVE_STATUS.ACTIVE, ACTIVE_STATUS.INACTIVE]"
             :label="[ACTIVE_STATUS_LABEL.ACTIVE, ACTIVE_STATUS_LABEL.INACTIVE]"
@@ -106,15 +106,12 @@
     ></t-enhanced-table> -->
     </t-card>
     <dialog-from-app
+      v-if="formDialogVisible"
       v-model:visible="formDialogVisible"
-      :dialog-header-value="dialogHeaderValue"
+      :dialog-app="dialogApp"
+      :dialog-is-add="dialogIsAdd"
+      :dialog-is-main="dialogIsMain"
       @close-add-app-dialog="closeAddAppDialog"
-    />
-    <dialog-from-app-vserion
-      v-model:visible="formDialogVersionVisible"
-      :dialog-header-prop="dialogVersionHeaderProp"
-      :app-id-prop="appIdProp"
-      @close-add-app-version-dialog="closeAddAppVersionDialog"
     />
   </div>
 </template>
@@ -122,18 +119,17 @@
 import { EnhancedTable as TEnhancedTable, MessagePlugin } from 'tdesign-vue-next';
 import { reactive, ref } from 'vue';
 
-import { getAppPage, updateAppStatus, updateAppVersionStatus } from '@/api/system/app';
+import { getAppPage, updateAppActiveStatus } from '@/api/system/app';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
 
 import DialogFromApp from './components/DialogFromApp.vue';
-import DialogFromAppVserion from './components/DialogFromAppVersion.vue';
 
 const TOTAL = 10;
 // 分页参数
 const pagination = reactive({
   current: 1,
   pageSize: TOTAL,
-  total: TOTAL,
+  total: 0,
 });
 
 const fetchData = async () => {
@@ -173,18 +169,7 @@ const queryData = ref({ ...searchForm });
 // 非必须，如果不传，表格有内置树形节点展开逻辑
 const expandedTreeNodes = ref([]);
 
-const treeConfig = reactive({ childrenKey: 'versions', treeNodeColumnIndex: 1, indent: 25 });
-
-const onEditClick = (row) => {
-  const newData = {
-    ...row,
-    platform: 'New',
-    type: 'Symbol',
-    default: 'undefined',
-  };
-  tableRef.value.setData(row.key, newData);
-  MessagePlugin.success('数据已更新');
-};
+const treeConfig = reactive({ treeNodeColumnIndex: 1, indent: 25 });
 
 // const onDeleteConfirm = (row) => {
 //   // 移除当前节点及其所有子节点
@@ -232,35 +217,33 @@ function appendMultipleDataTo(row) {
 
 const columns = [
   {
-    colKey: 'uid',
-    title: 'UID',
+    colKey: 'id',
+    title: 'ID',
     width: 100,
   },
   {
-    width: 180,
-    colKey: 'name',
+    colKey: 'label',
     title: '应用名',
     ellipsis: true,
   },
   {
-    colKey: 'status',
-    title: '状态',
-    width: 80,
-  },
-  {
-    colKey: 'remarks',
-    title: '备注',
+    colKey: 'describe',
+    title: '描述',
     ellipsis: true,
-    width: 160,
   },
   {
-    colKey: 'cTime',
+    colKey: 'activeStatus',
+    title: '状态',
+    width: 100,
+  },
+  {
+    colKey: 'ctime',
     title: '创建时间',
-    width: 140,
+    width: 170,
   },
   {
     colKey: 'operate',
-    width: 200,
+    width: 280,
     title: '操作',
     // 增、删、改、查 等操作
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -268,18 +251,29 @@ const columns = [
       <div class="tdesign-table-demo__table-operations">
         <t-space>
           <t-link
-            style={{ display: row.versions !== undefined ? 'inline' : 'none' }}
+            style={{
+              display:
+                row.parentApp === undefined ||
+                row.parentApp === null ||
+                row.parentApp.id === null ||
+                row.parentApp.id === '0'
+                  ? 'inline'
+                  : 'none',
+            }}
             variant="text"
             theme="primary"
             onClick={() => openAddAppVersionDialog(row)}
           >
             新增版本
           </t-link>
-          <t-link variant="text" hover="color" onClick={() => onEditClick(row)}>
+          <t-link variant="text" theme="primary" hover="color" onClick={() => onEditClick(row)}>
             更新
           </t-link>
-          <t-link variant="text" hover="color" onClick={() => onLookUp(row)}>
+          <t-link variant="text" theme="primary" hover="color" onClick={() => onLookUp(row)}>
             详情
+          </t-link>
+          <t-link variant="text" theme="primary" hover="color" onClick={() => onLookUp(row)}>
+            资源配置
           </t-link>
           {/* <t-popconfirm content="确认删除吗" onConfirm={() => onDeleteConfirm(row)}>
             <t-link variant="text" hover="color" theme="danger">
@@ -366,36 +360,55 @@ const beforeDragSort = (params) => {
 };
 
 const handleUpdateStatus = async (row) => {
-  if (row.versions !== undefined) {
-    await updateAppStatus(row.id, row.status);
-  } else {
-    await updateAppVersionStatus(row.appId, row.id, row.status);
-  }
+  await updateAppActiveStatus(row.id);
   fetchData();
 };
 
 // 控制应用弹框
+const dialogIsAdd = ref(true);
+const dialogIsMain = ref(true);
 const formDialogVisible = ref(false);
-const dialogHeaderValue = ref();
 const openAddAppDialog = () => {
+  dialogIsMain.value = true;
+  dialogIsAdd.value = true;
   formDialogVisible.value = true;
 };
 const closeAddAppDialog = () => {
   formDialogVisible.value = false;
+  dialogIsMain.value = true;
+  dialogIsAdd.value = true;
   fetchData();
 };
 
 // 控制应用版本弹框
-const formDialogVersionVisible = ref(false);
-const dialogVersionHeaderProp = ref();
-const appIdProp = ref();
 const openAddAppVersionDialog = (row) => {
-  appIdProp.value = row.id;
-  formDialogVersionVisible.value = true;
+  dialogIsMain.value = false;
+  dialogIsAdd.value = true;
+  dialogApp.value = {
+    parentApp: { id: row.id },
+  };
+  formDialogVisible.value = true;
 };
-const closeAddAppVersionDialog = () => {
-  formDialogVersionVisible.value = false;
-  fetchData();
+
+// 编辑
+const dialogApp = ref();
+const onEditClick = (row) => {
+  dialogApp.value = {
+    id: row.id,
+    name: row.name,
+    parentApp: row.parentApp,
+    describe: row.describe,
+    activeStatus: row.activeStatus,
+  };
+  if (row.parentApp != null && row.parentApp.id != null && row.parentApp.id !== '0') {
+    // 编辑应用版本
+    dialogIsMain.value = false;
+  } else {
+    dialogIsMain.value = true;
+  }
+  dialogIsAdd.value = false;
+  // 打开弹框
+  formDialogVisible.value = true;
 };
 </script>
 
@@ -403,4 +416,37 @@ const closeAddAppVersionDialog = () => {
 .tdesign-table-demo__table-operations .t-link {
   padding: 0 8px;
 }
+/* .payment-col {
+  display: flex;
+
+  .trend-container {
+    display: flex;
+    align-items: center;
+    margin-left: var(--td-comp-margin-s);
+  }
+}
+
+.list-card-container {
+  padding: var(--td-comp-paddingTB-xxl) var(--td-comp-paddingLR-xxl);
+
+  :deep(.t-card__body) {
+    padding: 0;
+  }
+}
+
+.left-operation-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--td-comp-margin-xxl);
+
+  .selected-count {
+    display: inline-block;
+    margin-left: var(--td-comp-margin-l);
+    color: var(--td-text-color-secondary);
+  }
+}
+
+.search-input {
+  width: 360px;
+} */
 </style>
