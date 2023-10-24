@@ -61,6 +61,7 @@
         :tree="treeConfig"
         :pagination="pagination"
         :before-drag-sort="beforeDragSort"
+        :loading="dataLoading"
         @page-change="onPageChange"
         @abnormal-drag-sort="onAbnormalDragSort"
         @drag-sort="onDragSort"
@@ -101,7 +102,11 @@
       :dialog-is-main="dialogIsMain"
       @close-add-app-dialog="closeAddAppDialog"
     />
-    <drawer-app-config v-if="drawerAppConfigVisible" v-model:visible="drawerAppConfigVisible" />
+    <drawer-app-config
+      v-if="drawerAppConfigVisible"
+      v-model:visible="drawerAppConfigVisible"
+      @close-drawer-app-config="closeDrawerAppConfig"
+    />
   </div>
 </template>
 <script setup lang="jsx">
@@ -121,7 +126,9 @@ const pagination = reactive({
   total: 0,
 });
 
+const dataLoading = ref(false);
 const fetchData = async () => {
+  dataLoading.value = true;
   try {
     const { records, size, total, current } = await getAppPage({
       current: pagination.current,
@@ -135,6 +142,8 @@ const fetchData = async () => {
     pagination.total = total;
   } catch (e) {
     console.log(e);
+  } finally {
+    dataLoading.value = false;
   }
 };
 
@@ -409,6 +418,11 @@ const drawerAppConfigVisible = ref(false);
 
 const displayDrawerAppConfig = () => {
   drawerAppConfigVisible.value = true;
+};
+const closeDrawerAppConfig = () => {
+  drawerAppConfigVisible.value = false;
+  console.log('收到关闭抽屉事件');
+  fetchData();
 };
 </script>
 

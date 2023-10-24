@@ -245,8 +245,8 @@ const editableCellState = (cellParams) => {
 };
 interface QueryData {
   name: string;
-  activeStatus?: APP_AUTH_CONFIG_STATUS;
-  status?: ACTIVE_STATUS;
+  activeStatus?: ACTIVE_STATUS;
+  status?: APP_AUTH_CONFIG_STATUS;
 }
 const searchForm = {
   name: '',
