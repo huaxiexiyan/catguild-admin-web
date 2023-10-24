@@ -25,6 +25,7 @@
             :options="mainAppData"
             clearable
             filterable
+            :disabled="!fatherProps.dialogIsAdd"
             placeholder="-请选择主应用-"
             @click="loadingMainData"
           />

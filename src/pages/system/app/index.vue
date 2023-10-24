@@ -2,61 +2,49 @@
   <div>
     <t-card class="list-card-container" :bordered="false">
       <t-row justify="space-between">
-        <t-col :span="1">
+        <t-col :span="2">
           <div class="left-operation-container">
             <t-button @click="openAddAppDialog"> 添加应用 </t-button>
           </div>
         </t-col>
-        <t-col :span="11">
-          <div class="search-input">
-            <t-form ref="form" :data="queryData" :label-width="80" colon @submit="onSubmit">
-              <t-row>
-                <t-col :span="10" class="input-container">
-                  <t-row :gutter="[0, 0]" justify="end">
-                    <t-col :span="4">
-                      <t-form-item label="资源名称" name="name">
-                        <t-input
-                          v-model="queryData.name"
-                          class="form-item-content"
-                          type="search"
-                          placeholder="资源名称"
-                        />
-                      </t-form-item>
-                    </t-col>
-                    <t-col :span="4">
-                      <t-form-item label="资源id" name="id">
-                        <t-input-number
-                          v-model="queryData.id"
-                          theme="normal"
-                          class="form-item-content"
-                          placeholder="请输入资源id"
-                          :style="{ minWidth: '210px' }"
-                        />
-                      </t-form-item>
-                    </t-col>
-                    <t-col :span="3">
-                      <t-form-item label="状态" name="status">
-                        <t-select
-                          v-model="queryData.status"
-                          class="form-item-content"
-                          :options="ACTIVE_STATUS_OPTIONS"
-                          placeholder="状态"
-                          clearable
-                        />
-                      </t-form-item>
-                    </t-col>
-                  </t-row>
-                </t-col>
+        <t-col :span="10">
+          <t-form ref="form" :data="queryData" :label-width="80" colon @submit="onSubmit">
+            <t-row>
+              <t-col :span="10">
+                <t-row :gutter="[24, 24]" justify="end">
+                  <t-col :span="4">
+                    <t-form-item label="应用名称" name="name">
+                      <t-input
+                        v-model="queryData.name"
+                        class="form-item-content"
+                        type="search"
+                        clearable
+                        placeholder="资源名称"
+                      />
+                    </t-form-item>
+                  </t-col>
+                  <t-col :span="4">
+                    <t-form-item label="状态" name="activeStatus">
+                      <t-select
+                        v-model="queryData.activeStatus"
+                        class="form-item-content"
+                        :options="ACTIVE_STATUS_OPTIONS"
+                        placeholder="状态"
+                        clearable
+                      />
+                    </t-form-item>
+                  </t-col>
+                </t-row>
+              </t-col>
 
-                <t-col :span="2" class="operation-container">
-                  <t-button theme="primary" type="submit" :style="{ marginLeft: 'var(--td-comp-margin-s)' }">
-                    查询
-                  </t-button>
-                  <t-button type="reset" variant="base" theme="default"> 重置 </t-button>
-                </t-col>
-              </t-row>
-            </t-form>
-          </div>
+              <t-col :span="2" class="operation-container">
+                <t-button theme="primary" type="submit" :style="{ marginLeft: 'var(--td-comp-margin-s)' }">
+                  查询
+                </t-button>
+                <t-button type="reset" variant="base" theme="default"> 重置 </t-button>
+              </t-col>
+            </t-row>
+          </t-form>
         </t-col>
       </t-row>
       <!-- !!! 树形结构 EnhancedTable 才支持，普通 Table 不支持 !!! -->
@@ -117,18 +105,17 @@
 </template>
 <script setup lang="jsx">
 import { EnhancedTable as TEnhancedTable, MessagePlugin } from 'tdesign-vue-next';
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import { getAppPage, updateAppActiveStatus } from '@/api/system/app';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
 
 import DialogFromApp from './components/DialogFromApp.vue';
 
-const TOTAL = 10;
 // 分页参数
 const pagination = reactive({
   current: 1,
-  pageSize: TOTAL,
+  pageSize: 10,
   total: 0,
 });
 
@@ -137,7 +124,8 @@ const fetchData = async () => {
     const { records, size, total, current } = await getAppPage({
       current: pagination.current,
       size: pagination.pageSize,
-      name: '',
+      name: queryData.value.name,
+      activeStatus: queryData.value.activeStatus,
     });
     data.value = records;
     pagination.current = current;
@@ -156,13 +144,16 @@ function getData() {
 const onSubmit = () => {
   fetchData();
 };
-
+onMounted(() => {
+  getData();
+});
 const tableRef = ref(null);
-const data = ref(getData());
+const data = ref();
 const lazyLoadingData = ref(null);
 // 查询参数
 const searchForm = {
   name: '',
+  activeStatus: '',
 };
 const queryData = ref({ ...searchForm });
 
@@ -412,20 +403,7 @@ const onEditClick = (row) => {
 };
 </script>
 
-<style scoped>
-.tdesign-table-demo__table-operations .t-link {
-  padding: 0 8px;
-}
-/* .payment-col {
-  display: flex;
-
-  .trend-container {
-    display: flex;
-    align-items: center;
-    margin-left: var(--td-comp-margin-s);
-  }
-}
-
+<style lang="less" scoped>
 .list-card-container {
   padding: var(--td-comp-paddingTB-xxl) var(--td-comp-paddingLR-xxl);
 
@@ -447,6 +425,18 @@ const onEditClick = (row) => {
 }
 
 .search-input {
-  width: 360px;
-} */
+  width: 460px;
+}
+.operation-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  .expand {
+    .t-button__text {
+      display: flex;
+      align-items: center;
+    }
+  }
+}
 </style>
