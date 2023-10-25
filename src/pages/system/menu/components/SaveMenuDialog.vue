@@ -240,4 +240,3 @@ const loadingMenuTree = async () => {
   menuTreeData.value = menuTree;
 };
 </script>
-./saveMenuConstants

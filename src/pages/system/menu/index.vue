@@ -81,16 +81,24 @@
       </t-enhanced-table>
     </t-card>
   </div>
-  <save-menu-dialog
+  <!-- <save-menu-dialog
     v-model:visible="saveMenuDialogVisible"
     :is-add-menu="isAddMenu"
     :update-menu-id="updateMenuId"
     @close-add-menu-dialog="closeSaveMenuDialog"
-  />
+  /> -->
 </template>
+
+<script lang="jsx">
+export default {
+  name: 'SystemMenuTree',
+};
+</script>
+
 <script setup lang="jsx">
 import { EnhancedTable as TEnhancedTable } from 'tdesign-vue-next';
 import { onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { getMenuTree, updateMenuStatus } from '@/api/system/menu';
 import { MENU_TYPE_OPTIONS } from '@/api/system/model/menuModel';
@@ -191,7 +199,7 @@ const onSubmit = () => {
 
 // 进入初始化
 onMounted(() => {
-  fetchData();
+  fetchMenuTableData();
 });
 
 const menuTableRef = ref(null);
@@ -199,20 +207,22 @@ const menuTableData = ref(getMenuTableData());
 
 const handleMenuActiveStatus = async (row) => {
   await updateMenuStatus(row.id, row.status).then(() => {
-    fetchData();
+    fetchMenuTableData();
   });
 };
 
 // 保存菜单弹框
 const saveMenuDialogVisible = ref(false);
 const isAddMenu = ref();
+const router = useRouter();
 const openSaveMenuDialog = (isAddMenu) => {
-  saveMenuDialogVisible.value = true;
-  isAddMenu.value = isAddMenu;
+  // saveMenuDialogVisible.value = true;
+  // isAddMenu.value = isAddMenu;
+  router.push('/system/menu/save');
 };
 const closeSaveMenuDialog = () => {
   saveMenuDialogVisible.value = false;
-  fetchData();
+  fetchMenuTableData();
 };
 // 更新菜单方法
 const updateMenuId = ref();
