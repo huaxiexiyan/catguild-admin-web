@@ -42,7 +42,7 @@ export function removeMenu(id: string) {
 // 获取菜单树
 export function getMenuTree(params?: MenuPageParam) {
   return request.get<MenuTreeListResult>({
-    url: Api.Menu,
+    url: `${Api.Menu}/tree`,
     params,
   });
 }

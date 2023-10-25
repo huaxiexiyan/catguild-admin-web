@@ -41,6 +41,6 @@ export function updateAppActiveStatus(id: string) {
 
 export function getMainApp() {
   return request.get<Array<AppResult>>({
-    url: `${Api.App}/main-app`,
+    url: `${Api.App}/main-apps`,
   });
 }
