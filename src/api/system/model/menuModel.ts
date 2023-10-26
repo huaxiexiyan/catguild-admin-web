@@ -40,16 +40,16 @@ export interface MenuParam {
 
 // 返回参数
 export interface MenuResult {
-  id: string;
-  parentMenu: {
+  id?: string;
+  parentMenu?: {
     id: string;
   };
-  path: string;
-  name: string;
-  component: string;
-  redirect: string;
-  activeStatus: ACTIVE_STATUS;
-  meta: {
+  path?: string;
+  name?: string;
+  component?: string;
+  redirect?: string;
+  activeStatus?: ACTIVE_STATUS;
+  meta?: {
     // meta 主要用途是路由在菜单上展示的效果的配置
     title: string; // 该路由在菜单上展示的标题
     icon: string; // 该路由在菜单上展示的图标

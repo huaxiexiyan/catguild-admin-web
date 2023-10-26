@@ -44,3 +44,16 @@ export function getMainApp() {
     url: `${Api.App}/main-apps`,
   });
 }
+
+export function getApp(id: string) {
+  return request.get<AppResult>({
+    url: `${Api.App}/${id}`,
+  });
+}
+
+export function updateAppMenu(id: string, data: AppResult) {
+  return request.put({
+    url: `${Api.App}/${id}/menu`,
+    data,
+  });
+}

@@ -105,6 +105,7 @@
     <drawer-app-config
       v-if="drawerAppConfigVisible"
       v-model:visible="drawerAppConfigVisible"
+      :drawer-app-id="drawerAppId"
       @close-drawer-app-config="closeDrawerAppConfig"
     />
   </div>
@@ -415,9 +416,10 @@ const onEditClick = (row) => {
 
 // app配置
 const drawerAppConfigVisible = ref(false);
-
-const displayDrawerAppConfig = () => {
+const drawerAppId = ref();
+const displayDrawerAppConfig = (row) => {
   drawerAppConfigVisible.value = true;
+  drawerAppId.value = row.id;
 };
 const closeDrawerAppConfig = () => {
   drawerAppConfigVisible.value = false;
