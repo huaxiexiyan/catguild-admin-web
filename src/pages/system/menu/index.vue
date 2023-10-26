@@ -4,8 +4,8 @@
       <t-row justify="space-between">
         <t-col :span="2">
           <div class="left-operation-container">
-            <t-button @click="openSaveMenuDialog"> 添加菜单 </t-button>
-            <t-button @click="openSaveMenuDialog"> 刷新资源点 </t-button>
+            <t-button @click="handleSaveMenu"> 添加菜单 </t-button>
+            <t-button @click="handleSaveMenu"> 刷新资源点 </t-button>
           </div>
         </t-col>
         <t-col :span="10">
@@ -81,12 +81,6 @@
       </t-enhanced-table>
     </t-card>
   </div>
-  <!-- <save-menu-dialog
-    v-model:visible="saveMenuDialogVisible"
-    :is-add-menu="isAddMenu"
-    :update-menu-id="updateMenuId"
-    @close-add-menu-dialog="closeSaveMenuDialog"
-  /> -->
 </template>
 
 <script lang="jsx">
@@ -103,8 +97,6 @@ import { useRouter } from 'vue-router';
 import { getMenuTree, updateMenuStatus } from '@/api/system/menu';
 import { MENU_TYPE_OPTIONS } from '@/api/system/model/menuModel';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
-
-import SaveMenuDialog from './components/SaveMenuDialog.vue';
 
 // 表格列配置
 const treeConfig = reactive({ treeNodeColumnIndex: 1, indent: 25 });
@@ -150,15 +142,10 @@ const menuTableColumns = [
     cell: (h, { row }) => (
       <div class="tdesign-table-demo__table-operations">
         <t-space>
-          {/* <t-link
-            style={{ display: row.versions !== undefined ? 'inline' : 'none' }}
-            variant="text"
-            theme="primary"
-            onClick={() => openAddAppVersionDialog(row)}
-          >
-            新增版本
-          </t-link> */}
-          <t-link variant="text" hover="color" onClick={() => updateMenu(row)}>
+          <t-link variant="text" theme="primary" onClick={() => handleAddChildrenMenu(row)}>
+            新增子菜单
+          </t-link>
+          <t-link variant="text" hover="color" onClick={() => handleUpdateMenu(row)}>
             更新
           </t-link>
           {/* <t-link variant="text" hover="color" onClick={() => onLookUp(row)}>
@@ -211,26 +198,18 @@ const handleMenuActiveStatus = async (row) => {
   });
 };
 
-// 保存菜单弹框
-const saveMenuDialogVisible = ref(false);
-const isAddMenu = ref();
+// 新增菜单
 const router = useRouter();
-const openSaveMenuDialog = (isAddMenu) => {
-  // saveMenuDialogVisible.value = true;
-  // isAddMenu.value = isAddMenu;
-  router.push('/system/menu/save');
+const handleSaveMenu = () => {
+  router.push({ name: 'SystemMenuSave' });
 };
-const closeSaveMenuDialog = () => {
-  saveMenuDialogVisible.value = false;
-  fetchMenuTableData();
+// 新增子菜单
+const handleAddChildrenMenu = (row) => {
+  router.push({ name: 'SystemMenuSave', query: { parentId: row.id } });
 };
 // 更新菜单方法
-const updateMenuId = ref();
-const updateMenu = (row) => {
-  // 打开弹框
-  openSaveMenuDialog(false);
-  // 传入菜单主键id
-  updateMenuId.value = row.id;
+const handleUpdateMenu = (row) => {
+  router.push({ name: 'SystemMenuSave', query: { id: row.id } });
 };
 </script>
 

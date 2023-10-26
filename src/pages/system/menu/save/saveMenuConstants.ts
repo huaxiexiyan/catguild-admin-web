@@ -1,6 +1,6 @@
 import { FormRule } from 'tdesign-vue-next';
 
-export const addMenuRules: Record<string, FormRule[]> = {
+export const saveMenuRules: Record<string, FormRule[]> = {
   path: [{ required: true, message: '请输入路由' }],
   name: [{ required: true, message: '请输入路由名' }],
   component: [{ required: true, message: '请输入组件位置' }],

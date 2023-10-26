@@ -1,9 +1,9 @@
 <template>
   <t-form
-    ref="addMenuValidatorStatus"
+    ref="saveMenuFormRef"
     class="base-form"
     :data="menuformData"
-    :rules="addMenuRules"
+    :rules="saveMenuRules"
     label-align="top"
     :label-width="100"
     :status-icon="true"
@@ -148,37 +148,35 @@
       <div class="form-submit-sub">
         <div class="form-submit-left">
           <t-button theme="primary" class="form-submit-confirm" type="submit"> 确认提交 </t-button>
-          <t-button type="reset" class="form-submit-cancel" theme="default" variant="base"> 取消 </t-button>
+          <t-button type="button" class="form-submit-cancel" theme="default" variant="base" @click="handleCancel">
+            取消
+          </t-button>
         </div>
       </div>
     </div>
   </t-form>
 </template>
+<script lang="ts">
+export default {
+  name: 'SystemMenuSave',
+};
+</script>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { MessagePlugin } from 'tdesign-vue-next';
+import { onActivated, onDeactivated, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import { addMenu, getMenu, getMenuTree } from '@/api/system/menu';
 import { MenuParam } from '@/api/system/model/menuModel';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, YES_NO_STATUS_LABEL } from '@/constants';
 
-import { addMenuRules } from './saveMenuConstants';
+import { saveMenuRules } from './saveMenuConstants';
 
-// 传值父组件
-const $emit = defineEmits(['closeAddMenuDialog']);
-// 父组件传值
-const fatherProps = defineProps({
-  isAddMenu: {
-    type: Boolean,
-    default: true,
-  },
-  updateMenuId: {
-    type: String,
-    default: '',
-  },
-});
+const router = useRouter();
+const route = useRoute();
+
 // 数据结构定义
-const addMenuValidatorStatus = ref(null);
-const formVisible = ref(false);
+const saveMenuFormRef = ref(null);
 const menuTreeData = ref();
 const INITIAL_DATA: MenuParam = {
   id: undefined as string | undefined,
@@ -208,36 +206,87 @@ const menuformData = ref({ ...INITIAL_DATA });
 // 提交表单
 const onSubmitMenu = async ({ validateResult, firstError }) => {
   if (validateResult === true) {
-    await addMenu(menuformData.value);
-    closeDialog();
+    await addMenu(menuformData.value).then(() => {
+      MessagePlugin.success('添加成功');
+      goBack();
+    });
   }
 };
 
 // 更新菜单回显
-const updateMenuEcho = async () => {
-  menuformData.value = await getMenu(fatherProps.updateMenuId);
+const updateMenuEcho = async (id: string) => {
+  await getMenu(id).then((data) => {
+    if (data) {
+      menuformData.value = data;
+      if (menuformData.value.parentMenu.id === '0') {
+        menuformData.value.parentMenu.id = undefined;
+      }
+    }
+  });
+};
+
+const initFromData = () => {
+  saveMenuFormRef.value.reset();
+  menuformData.value.id = undefined;
+  menuformData.value.parentMenu.id = undefined;
+  menuformData.value.path = '';
+  menuformData.value.name = '';
+  menuformData.value.component = '';
+  menuformData.value.redirect = undefined;
+  menuformData.value.activeStatus = ACTIVE_STATUS.ACTIVE;
+  menuformData.value.meta.title = '';
+  menuformData.value.meta.icon = undefined;
+  menuformData.value.meta.expanded = false;
+  menuformData.value.meta.orderNo = 0;
+  menuformData.value.meta.hidden = false;
+  menuformData.value.meta.hiddenBreadcrumb = false;
+  menuformData.value.meta.single = false;
+  menuformData.value.meta.frameSrc = undefined;
+  menuformData.value.meta.frameBlank = true;
+  menuformData.value.meta.keepAlive = true;
+
+  // saveMenuFormRef.value.clearValidate();
+  console.log(`reset初始化表单后的内容:${JSON.stringify(menuformData.value)}`);
 };
 
 // 更新菜单初始化
-onMounted(() => {
-  if (!fatherProps.isAddMenu) {
-    updateMenuEcho();
+const init = () => {
+  loadingMenuTree();
+  console.log('初始表单');
+  if (route.query.parentId) {
+    // 处理添加子菜单
+    menuformData.value.parentMenu.id = route.query.parentId.toString();
   }
+  if (route.query.id) {
+    // 处理更新
+    console.log(route.query.id);
+    updateMenuEcho(route.query.id.toString());
+  }
+  console.log(`初始化表单后的内容:${JSON.stringify(menuformData.value)}`);
+};
+
+// 每次进入组件中执行
+onActivated(() => {
+  console.log('触发onActivated');
+  init();
 });
 
-// 清除校验结果
-const handleClear = () => {
-  addMenuValidatorStatus.value.clearValidate();
+onDeactivated(() => {
+  console.log('触发 onDeactivated');
+  initFromData();
+});
+
+onMounted(() => {
+  init();
+});
+
+// 添加返回
+const goBack = () => {
+  router.back();
 };
 
-// 添加弹框取消
-const closeDialog = () => {
-  handleClear();
-  closeAddAppDialog();
-};
-
-const closeAddAppDialog = () => {
-  $emit('closeAddMenuDialog', false);
+const handleCancel = () => {
+  goBack();
 };
 
 // 加载菜单树
