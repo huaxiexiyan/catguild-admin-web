@@ -244,35 +244,28 @@ const initFromData = () => {
   menuformData.value.meta.frameSrc = undefined;
   menuformData.value.meta.frameBlank = true;
   menuformData.value.meta.keepAlive = true;
-
-  // saveMenuFormRef.value.clearValidate();
-  console.log(`reset初始化表单后的内容:${JSON.stringify(menuformData.value)}`);
 };
 
 // 更新菜单初始化
 const init = () => {
   loadingMenuTree();
-  console.log('初始表单');
   if (route.query.parentId) {
     // 处理添加子菜单
     menuformData.value.parentMenu.id = route.query.parentId.toString();
   }
   if (route.query.id) {
     // 处理更新
-    console.log(route.query.id);
     updateMenuEcho(route.query.id.toString());
   }
-  console.log(`初始化表单后的内容:${JSON.stringify(menuformData.value)}`);
 };
 
-// 每次进入组件中执行
+// 每次进入组件时执行
 onActivated(() => {
-  console.log('触发onActivated');
   init();
 });
 
+// 每次离开组件后执行
 onDeactivated(() => {
-  console.log('触发 onDeactivated');
   initFromData();
 });
 
