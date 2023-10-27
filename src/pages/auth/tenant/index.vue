@@ -7,55 +7,53 @@
           <!-- <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出合同 </t-button>
           <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p> -->
         </div>
-        <div class="search-input">
-          <t-form ref="form" :data="formData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
-            <t-row>
-              <t-col :span="10">
-                <t-row :gutter="[24, 24]">
-                  <t-col :span="4">
-                    <t-form-item label="租户名称" name="name">
-                      <t-input
-                        v-model="formData.name"
-                        class="form-item-content"
-                        type="search"
-                        placeholder="租户名称"
-                        :style="{ minWidth: '134px' }"
-                      />
-                    </t-form-item>
-                  </t-col>
-                  <t-col :span="4">
-                    <t-form-item label="UID" name="uid">
-                      <t-input
-                        v-model="formData.uid"
-                        class="form-item-content"
-                        placeholder="请输入UID"
-                        :style="{ minWidth: '134px' }"
-                      />
-                    </t-form-item>
-                  </t-col>
-                  <t-col :span="4">
-                    <t-form-item label="状态" name="status">
-                      <t-select
-                        v-model="formData.status"
-                        class="form-item-content"
-                        :options="ACTIVE_STATUS_OPTIONS"
-                        placeholder="状态"
-                        clearable
-                      />
-                    </t-form-item>
-                  </t-col>
-                </t-row>
-              </t-col>
+        <t-form ref="form" :data="formData" :label-width="80" colon @reset="onReset" @submit="onSubmit">
+          <t-row>
+            <t-col :span="10">
+              <t-row :gutter="[24, 24]">
+                <t-col :span="4">
+                  <t-form-item label="租户名称" name="name">
+                    <t-input
+                      v-model="formData.name"
+                      class="form-item-content"
+                      type="search"
+                      placeholder="租户名称"
+                      :style="{ minWidth: '134px' }"
+                    />
+                  </t-form-item>
+                </t-col>
+                <t-col :span="4">
+                  <t-form-item label="UID" name="uid">
+                    <t-input
+                      v-model="formData.uid"
+                      class="form-item-content"
+                      placeholder="请输入UID"
+                      :style="{ minWidth: '134px' }"
+                    />
+                  </t-form-item>
+                </t-col>
+                <t-col :span="4">
+                  <t-form-item label="状态" name="activeStatus">
+                    <t-select
+                      v-model="formData.activeStatus"
+                      class="form-item-content"
+                      :options="ACTIVE_STATUS_OPTIONS"
+                      placeholder="状态"
+                      clearable
+                    />
+                  </t-form-item>
+                </t-col>
+              </t-row>
+            </t-col>
 
-              <t-col :span="2" class="operation-container">
-                <t-button theme="primary" type="submit" :style="{ marginLeft: 'var(--td-comp-margin-s)' }">
-                  查询
-                </t-button>
-                <t-button type="reset" variant="base" theme="default"> 重置 </t-button>
-              </t-col>
-            </t-row>
-          </t-form>
-        </div>
+            <t-col :span="2" class="operation-container">
+              <t-button theme="primary" type="submit" :style="{ marginLeft: 'var(--td-comp-margin-s)' }">
+                查询
+              </t-button>
+              <t-button type="reset" variant="base" theme="default"> 重置 </t-button>
+            </t-col>
+          </t-row>
+        </t-form>
       </t-row>
       <t-table
         :data="data"
@@ -71,9 +69,9 @@
         @change="rehandleChange"
         @select-change="rehandleSelectChange"
       >
-        <template #status="{ row }">
+        <template #activeStatus="{ row }">
           <t-switch
-            v-model="row.status"
+            v-model="row.activeStatus"
             width="120px"
             :custom-value="[ACTIVE_STATUS.ACTIVE, ACTIVE_STATUS.INACTIVE]"
             :label="[ACTIVE_STATUS_LABEL.ACTIVE, ACTIVE_STATUS_LABEL.INACTIVE]"
@@ -84,7 +82,8 @@
         </template>
         <template #op="slotProps">
           <t-space>
-            <t-link theme="primary" @click="handleClickDetail(slotProps)">详情</t-link>
+            <t-link theme="primary" @click="handleClickDetail(slotProps.row)">详情</t-link>
+            <t-link theme="primary" @click="displayDrawerTenantAppConfig(slotProps.row)">分配App</t-link>
           </t-space>
         </template>
       </t-table>
@@ -92,13 +91,12 @@
 
     <dialog-from-tenant v-model:visible="formDialogVisible" />
 
-    <!-- <t-dialog
-      v-model:visible="confirmVisible"
-      header="确认删除当前所选合同？"
-      :body="confirmBody"
-      :on-cancel="onCancel"
-      @confirm="onConfirmDelete"
-    /> -->
+    <drawer-tenant-app-config
+      v-if="drawerTenantAppConfigVisible"
+      v-model:visible="drawerTenantAppConfigVisible"
+      :drawer-tenant-id="drawerTenantId"
+      @close-drawer-tenant-app-config="closeDrawerTenantAppConfig"
+    />
   </div>
 </template>
 
@@ -109,21 +107,22 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PageInfo, TableRowData } from 'tdesign-vue-next';
+import { MessagePlugin, PageInfo, TableRowData } from 'tdesign-vue-next';
 import { computed, onMounted, ref } from 'vue';
 
-import { getTenantPage } from '@/api/auth/tenant';
+import { getTenantPage, updateTenantActiveStatus } from '@/api/auth/tenant';
 import { prefix } from '@/config/global';
 import { ACTIVE_STATUS, ACTIVE_STATUS_LABEL, ACTIVE_STATUS_OPTIONS } from '@/constants';
 import { useSettingStore } from '@/store';
 
 import DialogFromTenant from './components/DialogFromTenant.vue';
+import DrawerTenantAppConfig from './components/DrawerTenantAppConfig.vue';
 import { COLUMNS } from './constants';
 
 interface FormData {
   name: string;
   uid: string;
-  status?: number;
+  activeStatus?: number;
 }
 const searchForm = {
   name: '',
@@ -146,7 +145,9 @@ const fetchData = async () => {
     const { records, size, total, current } = await getTenantPage({
       current: pagination.value.defaultCurrent,
       size: pagination.value.defaultPageSize,
-      name: '',
+      name: formData.value.name,
+      uid: formData.value.uid,
+      activeStatus: formData.value.activeStatus,
     });
     data.value = records;
     pagination.value = {
@@ -205,17 +206,30 @@ const onReset = (val: unknown) => {
   console.log(val);
 };
 const onSubmit = (val: unknown) => {
-  console.log(val);
-  console.log(formData.value);
+  fetchData();
 };
 
-const handleUpdateStatus = (row: { rowIndex: any }) => {
-  console.log('改变状态');
-  console.log(row);
+const handleUpdateStatus = async (row: { id: string }) => {
+  await updateTenantActiveStatus(row.id).then(() => {
+    MessagePlugin.success('操作成功');
+  });
+  fetchData();
+};
+
+// tenant的app配置
+const drawerTenantAppConfigVisible = ref(false);
+const drawerTenantId = ref();
+const displayDrawerTenantAppConfig = (row) => {
+  drawerTenantAppConfigVisible.value = true;
+  drawerTenantId.value = row.id;
+};
+const closeDrawerTenantAppConfig = () => {
+  drawerTenantAppConfigVisible.value = false;
+  fetchData();
 };
 </script>
 
-<!-- <style lang="less" scoped>
+<style lang="less" scoped>
 .payment-col {
   display: flex;
 
@@ -245,8 +259,4 @@ const handleUpdateStatus = (row: { rowIndex: any }) => {
     color: var(--td-text-color-secondary);
   }
 }
-
-.search-input {
-  width: 360px;
-}
-</style> -->
+</style>

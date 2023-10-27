@@ -5,7 +5,7 @@ export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
   {
     title: '租户名称',
     align: 'left',
-    width: 260,
+    width: 240,
     colKey: 'name',
     fixed: 'left',
   },
@@ -16,7 +16,7 @@ export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
   },
   {
     title: '注册邮箱',
-    width: 200,
+    width: 180,
     ellipsis: true,
     colKey: 'email',
   },
@@ -25,12 +25,12 @@ export const COLUMNS: PrimaryTableCol<TableRowData>[] = [
     ellipsis: true,
     colKey: 'remarks',
   },
-  { title: '状态', colKey: 'status', width: 120 },
+  { title: '状态', colKey: 'activeStatus', width: 120 },
   {
     title: '注册时间',
     width: 180,
     ellipsis: true,
-    colKey: 'cTime',
+    colKey: 'ctime',
   },
   {
     align: 'left',
