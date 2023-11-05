@@ -39,8 +39,8 @@ export function getTenant(id: string) {
 }
 
 export function updateTenantAppConfig(id: string, data: Tenant) {
-  return request.put({
-    url: `${Api.Tenant}/${id}/app`,
+  return request.post({
+    url: `${Api.Tenant}/${id}/sync-app-resource`,
     data,
   });
 }

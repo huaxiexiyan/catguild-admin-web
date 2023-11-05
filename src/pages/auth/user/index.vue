@@ -71,7 +71,7 @@
         @change="rehandleChange"
         @select-change="rehandleSelectChange"
       >
-        <template #status="{ row }">
+        <!-- <template #status="{ row }">
           <t-switch
             v-model="row.status"
             width="120px"
@@ -81,7 +81,7 @@
             @change="handleUpdateStatus(row)"
           >
           </t-switch>
-        </template>
+        </template> -->
         <template #op="slotProps">
           <t-space>
             <t-link theme="primary" @click="handleClickDetail(slotProps)">详情</t-link>
